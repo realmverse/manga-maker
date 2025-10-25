@@ -58,8 +58,8 @@ export default function Button({
       hover:translate-x-[-2px] hover:translate-y-[-2px]
     `,
     secondary: `
-      bg-gradient-to-br from-cyan-300 via-blue-300 to-purple-300
-      hover:from-cyan-200 hover:via-blue-200 hover:to-purple-200
+      bg-white
+      hover:bg-zinc-200
       hover:translate-x-[-2px] hover:translate-y-[-2px]
     `,
     disabled: `
@@ -71,10 +71,8 @@ export default function Button({
   };
 
   const textStyles = {
-    primary:
-      "text-white [text-shadow:_-2px_-2px_0_#000,_2px_-2px_0_#000,_-2px_2px_0_#000,_2px_2px_0_#000,_-2px_0_0_#000,_2px_0_0_#000,_0_-2px_0_#000,_0_2px_0_#000]",
-    secondary:
-      "text-white [text-shadow:_-2px_-2px_0_#000,_2px_-2px_0_#000,_-2px_2px_0_#000,_2px_2px_0_#000,_-2px_0_0_#000,_2px_0_0_#000,_0_-2px_0_#000,_0_2px_0_#000]",
+    primary: "text-white text-outline",
+    secondary: "text-black",
     disabled: "text-gray-600",
   };
 
