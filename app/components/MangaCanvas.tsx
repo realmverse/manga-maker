@@ -1,7 +1,7 @@
 'use client';
 
-import { useRef, useState } from 'react';
-import { Stage, Layer, Text, Transformer } from 'react-konva';
+import { useRef, useState, useEffect } from 'react';
+import { Stage, Layer, Text, Transformer, Image } from 'react-konva';
 import Konva from 'konva';
 
 interface TextItem {
@@ -16,8 +16,30 @@ interface TextItem {
   width?: number;
 }
 
+interface SpeechBubbleItem {
+  id: string;
+  imagePath: string;
+  x: number;
+  y: number;
+  width: number;
+  height: number;
+  rotation: number;
+  scaleX: number;
+  scaleY: number;
+}
+
+const SPEECH_BUBBLES = [
+  { name: 'Small', path: '/speech-bubbles/small-speech.png', width: 150, height: 100 },
+  { name: 'Wide', path: '/speech-bubbles/wide-speech.png', width: 200, height: 100 },
+  { name: 'Tall', path: '/speech-bubbles/tall-speech.png', width: 120, height: 180 },
+  { name: 'Thought', path: '/speech-bubbles/thought-speech.png', width: 150, height: 150 },
+  { name: 'Tail', path: '/speech-bubbles/speech-tail.png', width: 140, height: 120 },
+  { name: 'Thought Tail', path: '/speech-bubbles/thought-speech-tail.png', width: 140, height: 140 },
+];
+
 export default function MangaCanvas() {
   const [textItems, setTextItems] = useState<TextItem[]>([]);
+  const [speechBubbles, setSpeechBubbles] = useState<SpeechBubbleItem[]>([]);
   const [selectedId, setSelectedId] = useState<string | null>(null);
   const stageRef = useRef<Konva.Stage>(null);
 
@@ -36,8 +58,30 @@ export default function MangaCanvas() {
     setSelectedId(newText.id);
   };
 
+  const addSpeechBubble = (bubblePath: string, width: number, height: number) => {
+    const newBubble: SpeechBubbleItem = {
+      id: `bubble-${Date.now()}`,
+      imagePath: bubblePath,
+      x: 200,
+      y: 200,
+      width,
+      height,
+      rotation: 0,
+      scaleX: 1,
+      scaleY: 1,
+    };
+    setSpeechBubbles([...speechBubbles, newBubble]);
+    setSelectedId(newBubble.id);
+  };
+
   const updateText = (id: string, updates: Partial<TextItem>) => {
     setTextItems(textItems.map(item => 
+      item.id === id ? { ...item, ...updates } : item
+    ));
+  };
+
+  const updateBubble = (id: string, updates: Partial<SpeechBubbleItem>) => {
+    setSpeechBubbles(speechBubbles.map(item => 
       item.id === id ? { ...item, ...updates } : item
     ));
   };
@@ -45,6 +89,7 @@ export default function MangaCanvas() {
   const deleteSelected = () => {
     if (selectedId) {
       setTextItems(textItems.filter(item => item.id !== selectedId));
+      setSpeechBubbles(speechBubbles.filter(item => item.id !== selectedId));
       setSelectedId(null);
     }
   };
@@ -75,6 +120,20 @@ export default function MangaCanvas() {
             onClick={handleStageClick}
             onTap={handleStageClick}
           >
+            {/* Speech Bubble Layer (bottom - rendered first) */}
+            <Layer>
+              {speechBubbles.map((item) => (
+                <SpeechBubble
+                  key={item.id}
+                  item={item}
+                  isSelected={item.id === selectedId}
+                  onSelect={() => setSelectedId(item.id)}
+                  onChange={(updates) => updateBubble(item.id, updates)}
+                />
+              ))}
+            </Layer>
+            
+            {/* Text Layer (top - rendered last, always on top) */}
             <Layer>
               {textItems.map((item) => (
                 <EditableText
@@ -91,9 +150,10 @@ export default function MangaCanvas() {
       </div>
 
       {/* Right Toolbar */}
-      <div className="w-64 flex flex-col gap-4 bg-white/10 backdrop-blur-sm rounded-lg p-4 border border-white/20">
+      <div className="w-64 flex flex-col gap-4 bg-white/10 backdrop-blur-sm rounded-lg p-4 border border-white/20 overflow-y-auto">
         <h3 className="text-white font-bold text-lg">Tools</h3>
         
+        {/* Text Tool */}
         <div className="flex flex-col gap-2">
           <button
             onClick={addNewText}
@@ -101,22 +161,41 @@ export default function MangaCanvas() {
           >
             + Add Text
           </button>
-          
-          {selectedId && (
-            <button
-              onClick={deleteSelected}
-              className="w-full px-4 py-3 bg-red-600 hover:bg-red-700 text-white rounded-lg font-medium transition-colors"
-            >
-              Delete Selected
-            </button>
-          )}
         </div>
+
+        {/* Speech Bubbles */}
+        <div className="border-t border-white/20 pt-3">
+          <h4 className="text-white/80 font-semibold text-sm mb-2">Speech Bubbles</h4>
+          <div className="grid grid-cols-2 gap-2">
+            {SPEECH_BUBBLES.map((bubble) => (
+              <button
+                key={bubble.path}
+                onClick={() => addSpeechBubble(bubble.path, bubble.width, bubble.height)}
+                className="px-2 py-2 bg-blue-600 hover:bg-blue-700 text-white rounded text-xs font-medium transition-colors"
+              >
+                {bubble.name}
+              </button>
+            ))}
+          </div>
+        </div>
+        
+        {/* Delete Button */}
+        {selectedId && (
+          <button
+            onClick={deleteSelected}
+            className="w-full px-4 py-3 bg-red-600 hover:bg-red-700 text-white rounded-lg font-medium transition-colors"
+          >
+            Delete Selected
+          </button>
+        )}
 
         <div className="flex-1 border-t border-white/20 pt-4 mt-2">
           <p className="text-white/60 text-sm whitespace-pre-line">
             {selectedId 
-              ? '✓ Item selected\n\nDrag to move\nUse handles to resize/rotate\nDouble-click to edit text' 
-              : 'Click "Add Text" to get started'}
+              ? selectedId.startsWith('text-')
+                ? '✓ Text selected\n\nDrag to move\nUse handles to resize/rotate\nDouble-click to edit'
+                : '✓ Bubble selected\n\nDrag to move\nUse handles to resize/rotate'
+              : 'Add text or speech bubbles to get started'}
           </p>
         </div>
 
@@ -278,3 +357,94 @@ function EditableText({ item, isSelected, onSelect, onChange }: EditableTextProp
   );
 }
 
+interface SpeechBubbleProps {
+  item: SpeechBubbleItem;
+  isSelected: boolean;
+  onSelect: () => void;
+  onChange: (updates: Partial<SpeechBubbleItem>) => void;
+}
+
+function SpeechBubble({ item, isSelected, onSelect, onChange }: SpeechBubbleProps) {
+  const imageRef = useRef<Konva.Image>(null);
+  const transformerRef = useRef<Konva.Transformer>(null);
+  const [image, setImage] = useState<HTMLImageElement | null>(null);
+
+  // Load image
+  useEffect(() => {
+    const img = new window.Image();
+    img.src = item.imagePath;
+    img.onload = () => {
+      setImage(img);
+    };
+  }, [item.imagePath]);
+
+  // Attach transformer when selected
+  useEffect(() => {
+    if (isSelected && transformerRef.current && imageRef.current) {
+      transformerRef.current.nodes([imageRef.current]);
+      transformerRef.current.getLayer()?.batchDraw();
+    }
+  }, [isSelected]);
+
+  const handleDragEnd = (e: Konva.KonvaEventObject<DragEvent>) => {
+    onChange({
+      x: e.target.x(),
+      y: e.target.y(),
+    });
+  };
+
+  const handleTransformEnd = () => {
+    const node = imageRef.current;
+    if (node) {
+      onChange({
+        x: node.x(),
+        y: node.y(),
+        rotation: node.rotation(),
+        scaleX: node.scaleX(),
+        scaleY: node.scaleY(),
+      });
+    }
+  };
+
+  if (!image) return null;
+
+  return (
+    <>
+      <Image
+        ref={imageRef}
+        image={image}
+        x={item.x}
+        y={item.y}
+        width={item.width}
+        height={item.height}
+        scaleX={item.scaleX}
+        scaleY={item.scaleY}
+        rotation={item.rotation}
+        draggable
+        onClick={onSelect}
+        onTap={onSelect}
+        onDragEnd={handleDragEnd}
+        onTransformEnd={handleTransformEnd}
+      />
+      {isSelected && (
+        <Transformer
+          ref={transformerRef}
+          rotateEnabled={true}
+          enabledAnchors={[
+            'top-left',
+            'top-right',
+            'bottom-left',
+            'bottom-right',
+          ]}
+          boundBoxFunc={(oldBox, newBox) => {
+            // Limit minimum size
+            if (newBox.width < 20 || newBox.height < 20) {
+              return oldBox;
+            }
+            return newBox;
+          }}
+        />
+      )}
+    </>
+  );
+}
