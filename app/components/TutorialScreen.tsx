@@ -3,8 +3,8 @@ import Button from './Button';
 export default function TutorialScreen({ onContinue }: { onContinue: () => void }) {
   return (
     <div className="flex flex-col items-center gap-8 p-8 max-w-2xl animate-fade-in">
-      <h2 className="text-5xl font-bold text-white mb-4">
-        How to Play 🎮
+      <h2 className="text-5xl text-white mb-4 font-titan-one">
+        How to Play
       </h2>
       
       <div className="bg-white/10 backdrop-blur-sm rounded-2xl p-8 space-y-6 border border-white/20">
