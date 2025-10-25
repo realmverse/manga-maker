@@ -18,6 +18,8 @@ export type ApiResult<T> = { ok: true; result: T } | { ok: false; error: string 
 
 export type GenerateKodoImageRequest = {
   description: string;
+  width?: number;
+  height?: number;
   pollIntervalMs?: number;
   timeoutMs?: number;
 };

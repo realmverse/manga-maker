@@ -45,6 +45,10 @@ export default function RootLayout({
     <html lang="en">
       <body
         className={`${geistSans.variable} ${geistMono.variable} ${openSans.variable} ${titanOne.variable} ${comicNeue.variable} antialiased`}
+        style={{
+          background: 'linear-gradient(to bottom, #FAEFED, #FBF7EB)',
+          minHeight: '100vh',
+        }}
       >
         <AudioProvider initialMusic="/audio/OK POP KO! - Freedom Trail Studio.m4a">
           <MusicToggle />

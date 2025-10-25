@@ -1,22 +1,25 @@
+import Image from 'next/image';
 import Button from './Button';
 
 export default function TitleScreen({ onStart }: { onStart: () => void }) {
   return (
     <div className="flex flex-col items-center gap-12 p-8 text-center animate-fade-in">
       <div className="space-y-4">
-        <h1 className="text-7xl font-titan-one text-white drop-shadow-2xl tracking-tight">
-          MANGA MAKER
-        </h1>
-        <p className="text-xl text-purple-200 mt-4">
-          Create Your Story
-        </p>
+        <Image 
+          src="/images/manga-maker-logo.png" 
+          alt="Manga Maker" 
+          width={800}
+          height={256}
+          className="w-full max-w-[800px] h-auto drop-shadow-2xl"
+          priority
+        />
       </div>
       
       <Button onClick={onStart} variant="primary" size="large">
         START
       </Button>
       
-      <div className="absolute bottom-8 text-purple-300 text-sm animate-pulse">
+      <div className="absolute bottom-8 text-gray-800 text-lg font-semibold animate-pulse">
         Press START to begin
       </div>
     </div>

@@ -1,6 +1,13 @@
-'use client';
+"use client";
 
-import { createContext, useContext, useRef, useEffect, useState, ReactNode } from 'react';
+import {
+  createContext,
+  useContext,
+  useRef,
+  useEffect,
+  useState,
+  ReactNode,
+} from "react";
 
 interface AudioContextType {
   isMusicMuted: boolean;
@@ -15,7 +22,7 @@ const AudioContext = createContext<AudioContextType | undefined>(undefined);
 export function useAudio() {
   const context = useContext(AudioContext);
   if (!context) {
-    throw new Error('useAudio must be used within AudioProvider');
+    throw new Error("useAudio must be used within AudioProvider");
   }
   return context;
 }
@@ -35,42 +42,63 @@ export function AudioProvider({ children, initialMusic }: AudioProviderProps) {
   // Initialize on client side only
   useEffect(() => {
     setIsClient(true);
-    
+
     // Create background music audio element
-    if (typeof window !== 'undefined') {
+    if (typeof window !== "undefined") {
       backgroundMusicRef.current = new Audio();
       backgroundMusicRef.current.loop = true;
-      backgroundMusicRef.current.volume = 0.5; // Set default volume to 50%
-      
-      // Load initial music if provided
+      backgroundMusicRef.current.volume = 0.2; // Set default volume to 20%
+
+      // Load initial music if provided (but don't play yet)
       if (initialMusic) {
         backgroundMusicRef.current.src = initialMusic;
         currentMusicSrc.current = initialMusic;
-        
-        // Attempt to play (may be blocked by browser autoplay policy)
-        const playPromise = backgroundMusicRef.current.play();
-        if (playPromise !== undefined) {
-          playPromise
-            .then(() => {
-              musicStartedRef.current = true;
-              console.log('Background music started successfully');
-            })
-            .catch(() => {
-              // Autoplay was prevented - this is expected on most browsers
-              // User will need to interact with the page first
-              console.log('Autoplay prevented - will start on first user interaction');
-            });
-        }
+        // Don't attempt to play automatically - wait for user interaction
       }
-    }
 
-    return () => {
-      // Cleanup audio on unmount
-      if (backgroundMusicRef.current) {
-        backgroundMusicRef.current.pause();
-        backgroundMusicRef.current = null;
-      }
-    };
+      // Start music on first user interaction
+      const startMusicOnInteraction = () => {
+        if (
+          !musicStartedRef.current &&
+          backgroundMusicRef.current &&
+          currentMusicSrc.current
+        ) {
+          const playPromise = backgroundMusicRef.current.play();
+          if (playPromise !== undefined) {
+            playPromise
+              .then(() => {
+                musicStartedRef.current = true;
+                console.log("Background music started on user interaction");
+              })
+              .catch((error) => {
+                console.error("Could not start background music:", error);
+              });
+          }
+        }
+      };
+
+      // Add event listeners for first interaction
+      document.addEventListener("click", startMusicOnInteraction, {
+        once: true,
+      });
+      document.addEventListener("keydown", startMusicOnInteraction, {
+        once: true,
+      });
+      document.addEventListener("touchstart", startMusicOnInteraction, {
+        once: true,
+      });
+
+      return () => {
+        // Cleanup audio and event listeners on unmount
+        document.removeEventListener("click", startMusicOnInteraction);
+        document.removeEventListener("keydown", startMusicOnInteraction);
+        document.removeEventListener("touchstart", startMusicOnInteraction);
+        if (backgroundMusicRef.current) {
+          backgroundMusicRef.current.pause();
+          backgroundMusicRef.current = null;
+        }
+      };
+    }
   }, [initialMusic]);
 
   const toggleMusicMute = () => {
@@ -85,7 +113,7 @@ export function AudioProvider({ children, initialMusic }: AudioProviderProps) {
               musicStartedRef.current = true;
             })
             .catch((error) => {
-              console.error('Error playing music:', error);
+              console.error("Error playing music:", error);
             });
         }
       } else {
@@ -101,7 +129,7 @@ export function AudioProvider({ children, initialMusic }: AudioProviderProps) {
       currentMusicSrc.current = src;
       backgroundMusicRef.current.src = src;
       backgroundMusicRef.current.muted = isMusicMuted;
-      
+
       const playPromise = backgroundMusicRef.current.play();
       if (playPromise !== undefined) {
         playPromise
@@ -109,34 +137,38 @@ export function AudioProvider({ children, initialMusic }: AudioProviderProps) {
             musicStartedRef.current = true;
           })
           .catch((error) => {
-            console.error('Error playing music:', error);
+            console.error("Error playing music:", error);
           });
       }
     }
   };
 
   const playSFX = (src: string, volume: number = 0.7) => {
-    if (typeof window !== 'undefined' && !isMusicMuted) {
+    if (typeof window !== "undefined" && !isMusicMuted) {
       // Attempt to start background music on first user interaction if not already started
-      if (!musicStartedRef.current && backgroundMusicRef.current && currentMusicSrc.current) {
+      if (
+        !musicStartedRef.current &&
+        backgroundMusicRef.current &&
+        currentMusicSrc.current
+      ) {
         const playPromise = backgroundMusicRef.current.play();
         if (playPromise !== undefined) {
           playPromise
             .then(() => {
               musicStartedRef.current = true;
-              console.log('Background music started on user interaction');
+              console.log("Background music started on user interaction");
             })
             .catch((error) => {
-              console.error('Could not start background music:', error);
+              console.error("Could not start background music:", error);
             });
         }
       }
-      
+
       // Play the sound effect
       const sfx = new Audio(src);
       sfx.volume = volume;
       sfx.play().catch((error) => {
-        console.error('Error playing SFX:', error);
+        console.error("Error playing SFX:", error);
       });
     }
   };
@@ -149,9 +181,6 @@ export function AudioProvider({ children, initialMusic }: AudioProviderProps) {
   };
 
   return (
-    <AudioContext.Provider value={value}>
-      {children}
-    </AudioContext.Provider>
+    <AudioContext.Provider value={value}>{children}</AudioContext.Provider>
   );
 }
-

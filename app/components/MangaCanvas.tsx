@@ -35,8 +35,10 @@ interface PanelItem {
   id: string;
   x: number;
   y: number;
-  width: number;
-  height: number;
+  width: number;  // Display width on canvas
+  height: number; // Display height on canvas
+  genWidth: number;  // Generation width (multiple of 64)
+  genHeight: number; // Generation height (multiple of 64)
   rotation: number;
   scaleX: number;
   scaleY: number;
@@ -56,13 +58,13 @@ const SPEECH_BUBBLES = [
 ];
 
 const PANEL_RATIOS = [
-  { name: '1:1', ratio: 1, width: 200, height: 200 },
-  { name: '16:9', ratio: 16/9, width: 240, height: 135 },
-  { name: '9:16', ratio: 9/16, width: 135, height: 240 },
-  { name: '2:3', ratio: 2/3, width: 160, height: 240 },
-  { name: '3:2', ratio: 3/2, width: 240, height: 160 },
-  { name: '4:5', ratio: 4/5, width: 160, height: 200 },
-  { name: '5:4', ratio: 5/4, width: 200, height: 160 },
+  { name: '1:1', ratio: 1, displayWidth: 200, displayHeight: 200, genWidth: 1024, genHeight: 1024 },
+  { name: '16:9', ratio: 16/9, displayWidth: 240, displayHeight: 135, genWidth: 1024, genHeight: 576 },
+  { name: '9:16', ratio: 9/16, displayWidth: 135, displayHeight: 240, genWidth: 576, genHeight: 1024 },
+  { name: '2:3', ratio: 2/3, displayWidth: 160, displayHeight: 240, genWidth: 768, genHeight: 1152 },
+  { name: '3:2', ratio: 3/2, displayWidth: 240, displayHeight: 160, genWidth: 1152, genHeight: 768 },
+  { name: '4:5', ratio: 4/5, displayWidth: 160, displayHeight: 200, genWidth: 1024, genHeight: 1280 },
+  { name: '5:4', ratio: 5/4, displayWidth: 200, displayHeight: 160, genWidth: 1280, genHeight: 1024 },
 ];
 
 export default function MangaCanvas({ contract }: { contract: TMangaContract }) {
@@ -107,13 +109,15 @@ export default function MangaCanvas({ contract }: { contract: TMangaContract }) 
     setSelectedId(newBubble.id);
   };
 
-  const addPanel = (width: number, height: number) => {
+  const addPanel = (displayWidth: number, displayHeight: number, genWidth: number, genHeight: number) => {
     const newPanel: PanelItem = {
       id: `panel-${Date.now()}`,
       x: 150,
       y: 150,
-      width,
-      height,
+      width: displayWidth,
+      height: displayHeight,
+      genWidth,
+      genHeight,
       rotation: 0,
       scaleX: 1,
       scaleY: 1,
@@ -149,8 +153,11 @@ export default function MangaCanvas({ contract }: { contract: TMangaContract }) 
     updatePanel(panelId, { isGenerating: true, error: undefined });
 
     try {
+      // Use the stored generation dimensions (already multiples of 64)
       const result = await kodoClient.current.generate({ 
         description: panel.prompt,
+        width: panel.genWidth,
+        height: panel.genHeight,
         timeoutMs: 180000 // 3 minutes
       });
       
@@ -319,7 +326,7 @@ export default function MangaCanvas({ contract }: { contract: TMangaContract }) 
       </div>
 
       {/* Right Toolbar */}
-      <div className="w-64 flex flex-col gap-4 bg-white/10 backdrop-blur-sm rounded-lg p-4 border border-white/20 overflow-y-auto">
+      <div className="w-64 flex flex-col gap-4 bg-black/30 backdrop-blur-md rounded-lg p-4 border border-white/20 shadow-2xl overflow-y-auto">
         <h3 className="text-white font-bold text-lg">Tools</h3>
         
         {/* Text Tool */}
@@ -339,7 +346,7 @@ export default function MangaCanvas({ contract }: { contract: TMangaContract }) 
             {PANEL_RATIOS.map((panel) => (
               <button
                 key={panel.name}
-                onClick={() => addPanel(panel.width, panel.height)}
+                onClick={() => addPanel(panel.displayWidth, panel.displayHeight, panel.genWidth, panel.genHeight)}
                 className="px-2 py-2 bg-green-600 hover:bg-green-700 text-white rounded text-xs font-medium transition-colors"
               >
                 {panel.name}

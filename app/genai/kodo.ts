@@ -35,6 +35,8 @@ export type KodoGetJobResponse = KodoCreateJobResponse;
 
 export type GenerateKodoImageParams = {
   description: string;
+  width?: number; // Image width in pixels
+  height?: number; // Image height in pixels
   // Polling options
   pollIntervalMs?: number; // default 1500
   timeoutMs?: number; // default 90_000
@@ -94,6 +96,8 @@ export async function generateKodoImage(
     type: "tti-v1",
     params: {
       positive: params.description,
+      ...(params.width && { width: params.width }),
+      ...(params.height && { height: params.height }),
     },
   };
 
