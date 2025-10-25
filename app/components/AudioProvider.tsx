@@ -30,6 +30,7 @@ export function AudioProvider({ children, initialMusic }: AudioProviderProps) {
   const [isClient, setIsClient] = useState(false);
   const backgroundMusicRef = useRef<HTMLAudioElement | null>(null);
   const currentMusicSrc = useRef<string | null>(null);
+  const musicStartedRef = useRef<boolean>(false);
 
   // Initialize on client side only
   useEffect(() => {
@@ -49,11 +50,16 @@ export function AudioProvider({ children, initialMusic }: AudioProviderProps) {
         // Attempt to play (may be blocked by browser autoplay policy)
         const playPromise = backgroundMusicRef.current.play();
         if (playPromise !== undefined) {
-          playPromise.catch(() => {
-            // Autoplay was prevented - this is expected on most browsers
-            // User will need to interact with the page first
-            console.log('Autoplay prevented - waiting for user interaction');
-          });
+          playPromise
+            .then(() => {
+              musicStartedRef.current = true;
+              console.log('Background music started successfully');
+            })
+            .catch(() => {
+              // Autoplay was prevented - this is expected on most browsers
+              // User will need to interact with the page first
+              console.log('Autoplay prevented - will start on first user interaction');
+            });
         }
       }
     }
@@ -74,9 +80,13 @@ export function AudioProvider({ children, initialMusic }: AudioProviderProps) {
         backgroundMusicRef.current.muted = false;
         const playPromise = backgroundMusicRef.current.play();
         if (playPromise !== undefined) {
-          playPromise.catch((error) => {
-            console.error('Error playing music:', error);
-          });
+          playPromise
+            .then(() => {
+              musicStartedRef.current = true;
+            })
+            .catch((error) => {
+              console.error('Error playing music:', error);
+            });
         }
       } else {
         // Mute
@@ -94,15 +104,35 @@ export function AudioProvider({ children, initialMusic }: AudioProviderProps) {
       
       const playPromise = backgroundMusicRef.current.play();
       if (playPromise !== undefined) {
-        playPromise.catch((error) => {
-          console.error('Error playing music:', error);
-        });
+        playPromise
+          .then(() => {
+            musicStartedRef.current = true;
+          })
+          .catch((error) => {
+            console.error('Error playing music:', error);
+          });
       }
     }
   };
 
   const playSFX = (src: string, volume: number = 0.7) => {
     if (typeof window !== 'undefined' && !isMusicMuted) {
+      // Attempt to start background music on first user interaction if not already started
+      if (!musicStartedRef.current && backgroundMusicRef.current && currentMusicSrc.current) {
+        const playPromise = backgroundMusicRef.current.play();
+        if (playPromise !== undefined) {
+          playPromise
+            .then(() => {
+              musicStartedRef.current = true;
+              console.log('Background music started on user interaction');
+            })
+            .catch((error) => {
+              console.error('Could not start background music:', error);
+            });
+        }
+      }
+      
+      // Play the sound effect
       const sfx = new Audio(src);
       sfx.volume = volume;
       sfx.play().catch((error) => {

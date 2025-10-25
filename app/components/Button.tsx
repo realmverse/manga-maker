@@ -1,3 +1,7 @@
+'use client';
+
+import { useAudio } from './AudioProvider';
+
 type ButtonVariant = 'primary' | 'secondary' | 'disabled';
 
 interface ButtonProps {
@@ -13,6 +17,20 @@ export default function Button({
   variant = 'primary',
   size = 'medium'
 }: ButtonProps) {
+  const { playSFX } = useAudio();
+
+  const handleHover = () => {
+    if (variant !== 'disabled') {
+      playSFX('/audio/button-hover.wav', 0.3);
+    }
+  };
+
+  const handleClick = () => {
+    if (variant !== 'disabled') {
+      playSFX('/audio/button-click.wav', 0.5);
+      onClick?.();
+    }
+  };
   const baseStyles = `
     font-titan-one 
     rounded-2xl 
@@ -62,7 +80,8 @@ export default function Button({
   
   return (
     <button
-      onClick={isDisabled ? undefined : onClick}
+      onClick={handleClick}
+      onMouseEnter={handleHover}
       disabled={isDisabled}
       className={`
         ${baseStyles}
