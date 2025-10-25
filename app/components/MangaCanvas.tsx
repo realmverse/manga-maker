@@ -1,8 +1,9 @@
 'use client';
 
 import { useRef, useState, useEffect } from 'react';
-import { Stage, Layer, Text, Transformer, Image } from 'react-konva';
+import { Stage, Layer, Text, Transformer, Image, Rect, Group } from 'react-konva';
 import Konva from 'konva';
+import { KodoClient } from '@/lib/api/client';
 
 interface TextItem {
   id: string;
@@ -28,6 +29,21 @@ interface SpeechBubbleItem {
   scaleY: number;
 }
 
+interface PanelItem {
+  id: string;
+  x: number;
+  y: number;
+  width: number;
+  height: number;
+  rotation: number;
+  scaleX: number;
+  scaleY: number;
+  prompt: string;
+  imageUrl?: string;
+  isGenerating: boolean;
+  error?: string;
+}
+
 const SPEECH_BUBBLES = [
   { name: 'Small', path: '/speech-bubbles/speech-small.svg', width: 150, height: 100 },
   { name: 'Wide', path: '/speech-bubbles/speech-wide.svg', width: 200, height: 100 },
@@ -37,11 +53,23 @@ const SPEECH_BUBBLES = [
   { name: 'Thought Tail', path: '/speech-bubbles/thought-tail.svg', width: 140, height: 140 },
 ];
 
+const PANEL_RATIOS = [
+  { name: '1:1', ratio: 1, width: 200, height: 200 },
+  { name: '16:9', ratio: 16/9, width: 240, height: 135 },
+  { name: '9:16', ratio: 9/16, width: 135, height: 240 },
+  { name: '2:3', ratio: 2/3, width: 160, height: 240 },
+  { name: '3:2', ratio: 3/2, width: 240, height: 160 },
+  { name: '4:5', ratio: 4/5, width: 160, height: 200 },
+  { name: '5:4', ratio: 5/4, width: 200, height: 160 },
+];
+
 export default function MangaCanvas() {
   const [textItems, setTextItems] = useState<TextItem[]>([]);
   const [speechBubbles, setSpeechBubbles] = useState<SpeechBubbleItem[]>([]);
+  const [panels, setPanels] = useState<PanelItem[]>([]);
   const [selectedId, setSelectedId] = useState<string | null>(null);
   const stageRef = useRef<Konva.Stage>(null);
+  const kodoClient = useRef(new KodoClient());
 
   const addNewText = () => {
     const newText: TextItem = {
@@ -74,6 +102,23 @@ export default function MangaCanvas() {
     setSelectedId(newBubble.id);
   };
 
+  const addPanel = (width: number, height: number) => {
+    const newPanel: PanelItem = {
+      id: `panel-${Date.now()}`,
+      x: 150,
+      y: 150,
+      width,
+      height,
+      rotation: 0,
+      scaleX: 1,
+      scaleY: 1,
+      prompt: '',
+      isGenerating: false,
+    };
+    setPanels([...panels, newPanel]);
+    setSelectedId(newPanel.id);
+  };
+
   const updateText = (id: string, updates: Partial<TextItem>) => {
     setTextItems(textItems.map(item => 
       item.id === id ? { ...item, ...updates } : item
@@ -86,10 +131,49 @@ export default function MangaCanvas() {
     ));
   };
 
+  const updatePanel = (id: string, updates: Partial<PanelItem>) => {
+    setPanels(panels.map(item => 
+      item.id === id ? { ...item, ...updates } : item
+    ));
+  };
+
+  const generatePanelImage = async (panelId: string) => {
+    const panel = panels.find(p => p.id === panelId);
+    if (!panel || !panel.prompt.trim()) return;
+
+    updatePanel(panelId, { isGenerating: true, error: undefined });
+
+    try {
+      const result = await kodoClient.current.generate({ 
+        description: panel.prompt,
+        timeoutMs: 180000 // 3 minutes
+      });
+      
+      if (result.url) {
+        updatePanel(panelId, { 
+          isGenerating: false, 
+          imageUrl: result.url,
+          error: undefined
+        });
+      } else {
+        updatePanel(panelId, { 
+          isGenerating: false,
+          error: `Generation ${result.status}`
+        });
+      }
+    } catch (error: any) {
+      updatePanel(panelId, { 
+        isGenerating: false,
+        error: error.message || 'Failed to generate image'
+      });
+    }
+  };
+
   const deleteSelected = () => {
     if (selectedId) {
       setTextItems(textItems.filter(item => item.id !== selectedId));
       setSpeechBubbles(speechBubbles.filter(item => item.id !== selectedId));
+      setPanels(panels.filter(item => item.id !== selectedId));
       setSelectedId(null);
     }
   };
@@ -120,7 +204,21 @@ export default function MangaCanvas() {
             onClick={handleStageClick}
             onTap={handleStageClick}
           >
-            {/* Speech Bubble Layer (bottom - rendered first) */}
+            {/* Panel Layer (bottom-most - rendered first) */}
+            <Layer>
+              {panels.map((item) => (
+                <Panel
+                  key={item.id}
+                  item={item}
+                  isSelected={item.id === selectedId}
+                  onSelect={() => setSelectedId(item.id)}
+                  onChange={(updates) => updatePanel(item.id, updates)}
+                  onGenerateImage={() => generatePanelImage(item.id)}
+                />
+              ))}
+            </Layer>
+
+            {/* Speech Bubble Layer */}
             <Layer>
               {speechBubbles.map((item) => (
                 <SpeechBubble
@@ -163,6 +261,22 @@ export default function MangaCanvas() {
           </button>
         </div>
 
+        {/* Panels */}
+        <div className="border-t border-white/20 pt-3">
+          <h4 className="text-white/80 font-semibold text-sm mb-2">AI Image Panels</h4>
+          <div className="grid grid-cols-3 gap-2">
+            {PANEL_RATIOS.map((panel) => (
+              <button
+                key={panel.name}
+                onClick={() => addPanel(panel.width, panel.height)}
+                className="px-2 py-2 bg-green-600 hover:bg-green-700 text-white rounded text-xs font-medium transition-colors"
+              >
+                {panel.name}
+              </button>
+            ))}
+          </div>
+        </div>
+
         {/* Speech Bubbles */}
         <div className="border-t border-white/20 pt-3">
           <h4 className="text-white/80 font-semibold text-sm mb-2">Speech Bubbles</h4>
@@ -179,6 +293,38 @@ export default function MangaCanvas() {
           </div>
         </div>
         
+        {/* Panel Prompt Input - only show when panel is selected */}
+        {selectedId && selectedId.startsWith('panel-') && (() => {
+          const panel = panels.find(p => p.id === selectedId);
+          return panel ? (
+            <div className="border-t border-white/20 pt-3">
+              <h4 className="text-white/80 font-semibold text-sm mb-2">Generate AI Image</h4>
+              <input
+                type="text"
+                value={panel.prompt}
+                onChange={(e) => updatePanel(selectedId, { prompt: e.target.value })}
+                placeholder="Describe the image..."
+                className="w-full px-3 py-2 bg-white/10 text-white rounded border border-white/20 text-sm placeholder-white/40 focus:outline-none focus:border-green-500 mb-2"
+                onKeyDown={(e) => {
+                  if (e.key === 'Enter' && !panel.isGenerating) {
+                    generatePanelImage(selectedId);
+                  }
+                }}
+              />
+              <button
+                onClick={() => generatePanelImage(selectedId)}
+                disabled={!panel.prompt.trim() || panel.isGenerating}
+                className="w-full px-3 py-2 bg-green-600 hover:bg-green-700 disabled:bg-gray-600 disabled:cursor-not-allowed text-white rounded text-sm font-medium transition-colors"
+              >
+                {panel.isGenerating ? 'Generating...' : 'Generate Image'}
+              </button>
+              {panel.error && (
+                <p className="text-red-400 text-xs mt-2">{panel.error}</p>
+              )}
+            </div>
+          ) : null;
+        })()}
+        
         {/* Delete Button */}
         {selectedId && (
           <button
@@ -194,8 +340,10 @@ export default function MangaCanvas() {
             {selectedId 
               ? selectedId.startsWith('text-')
                 ? '✓ Text selected\n\nDrag to move\nUse handles to resize/rotate\nDouble-click to edit'
+                : selectedId.startsWith('panel-')
+                ? '✓ Panel selected\n\nEnter a prompt above to generate an AI image'
                 : '✓ Bubble selected\n\nDrag to move\nUse handles to resize/rotate'
-              : 'Add text or speech bubbles to get started'}
+              : 'Add panels, text, or speech bubbles to get started'}
           </p>
         </div>
 
@@ -426,6 +574,130 @@ function SpeechBubble({ item, isSelected, onSelect, onChange }: SpeechBubbleProp
         onDragEnd={handleDragEnd}
         onTransformEnd={handleTransformEnd}
       />
+      {isSelected && (
+        <Transformer
+          ref={transformerRef}
+          rotateEnabled={true}
+          enabledAnchors={[
+            'top-left',
+            'top-right',
+            'bottom-left',
+            'bottom-right',
+          ]}
+          boundBoxFunc={(oldBox, newBox) => {
+            // Limit minimum size
+            if (newBox.width < 20 || newBox.height < 20) {
+              return oldBox;
+            }
+            return newBox;
+          }}
+        />
+      )}
+    </>
+  );
+}
+
+interface PanelProps {
+  item: PanelItem;
+  isSelected: boolean;
+  onSelect: () => void;
+  onChange: (updates: Partial<PanelItem>) => void;
+  onGenerateImage: () => void;
+}
+
+function Panel({ item, isSelected, onSelect, onChange }: PanelProps) {
+  const groupRef = useRef<Konva.Group>(null);
+  const transformerRef = useRef<Konva.Transformer>(null);
+  const [generatedImage, setGeneratedImage] = useState<HTMLImageElement | null>(null);
+
+  // Load generated image when URL changes
+  useEffect(() => {
+    if (item.imageUrl) {
+      const img = new window.Image();
+      // Note: crossOrigin removed to avoid CORS issues with Cloudflare R2
+      // If you need to export canvas later, you may need a CORS proxy
+      img.src = item.imageUrl;
+      img.onload = () => {
+        setGeneratedImage(img);
+      };
+    } else {
+      setGeneratedImage(null);
+    }
+  }, [item.imageUrl]);
+
+  // Attach transformer when selected
+  useEffect(() => {
+    if (isSelected && transformerRef.current && groupRef.current) {
+      transformerRef.current.nodes([groupRef.current]);
+      transformerRef.current.getLayer()?.batchDraw();
+    }
+  }, [isSelected]);
+
+  const handleDragEnd = (e: Konva.KonvaEventObject<DragEvent>) => {
+    onChange({
+      x: e.target.x(),
+      y: e.target.y(),
+    });
+  };
+
+  const handleTransformEnd = () => {
+    const node = groupRef.current;
+    if (node) {
+      onChange({
+        x: node.x(),
+        y: node.y(),
+        rotation: node.rotation(),
+        scaleX: node.scaleX(),
+        scaleY: node.scaleY(),
+      });
+    }
+  };
+
+  return (
+    <>
+      <Group
+        ref={groupRef}
+        x={item.x}
+        y={item.y}
+        scaleX={item.scaleX}
+        scaleY={item.scaleY}
+        rotation={item.rotation}
+        draggable
+        onClick={onSelect}
+        onTap={onSelect}
+        onDragEnd={handleDragEnd}
+        onTransformEnd={handleTransformEnd}
+      >
+        {/* Background rectangle */}
+        <Rect
+          width={item.width}
+          height={item.height}
+          fill={generatedImage ? '#ffffff' : '#f0f0f0'}
+          stroke={isSelected ? '#10b981' : '#cccccc'}
+          strokeWidth={isSelected ? 3 : 2}
+        />
+        
+        {/* Generated image or placeholder */}
+        {generatedImage ? (
+          <Image
+            image={generatedImage}
+            width={item.width}
+            height={item.height}
+          />
+        ) : (
+          <Text
+            text={item.isGenerating ? 'Generating...' : item.error ? 'Error' : 'Click to add prompt'}
+            width={item.width}
+            height={item.height}
+            align="center"
+            verticalAlign="middle"
+            fontSize={14}
+            fill={item.error ? '#ef4444' : '#999999'}
+            fontFamily="Comic Neue"
+          />
+        )}
+      </Group>
+      
       {isSelected && (
         <Transformer
           ref={transformerRef}
