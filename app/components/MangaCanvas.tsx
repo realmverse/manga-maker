@@ -43,7 +43,7 @@ interface PanelItem {
   scaleX: number;
   scaleY: number;
   prompt: string;
-  imageUrl?: string;
+  imageDataUrl?: string;
   isGenerating: boolean;
   error?: string;
 }
@@ -162,11 +162,27 @@ export default function MangaCanvas({ contract }: { contract: TMangaContract }) 
       });
       
       if (result.url) {
-        updatePanel(panelId, { 
-          isGenerating: false, 
-          imageUrl: result.url,
-          error: undefined
-        });
+        try {
+          const res = await fetch(result.url);
+          if (!res.ok) throw new Error(`Failed to fetch image (${res.status})`);
+          const blob = await res.blob();
+          const dataUrl = await new Promise<string>((resolve, reject) => {
+            const reader = new FileReader();
+            reader.onloadend = () => resolve(reader.result as string);
+            reader.onerror = reject;
+            reader.readAsDataURL(blob);
+          });
+          updatePanel(panelId, {
+            isGenerating: false,
+            imageDataUrl: dataUrl,
+            error: undefined,
+          });
+        } catch (e: any) {
+          updatePanel(panelId, {
+            isGenerating: false,
+            error: e?.message || 'Failed to load generated image',
+          });
+        }
       } else {
         updatePanel(panelId, { 
           isGenerating: false,
@@ -713,20 +729,18 @@ function Panel({ item, isSelected, onSelect, onChange }: PanelProps) {
   const transformerRef = useRef<Konva.Transformer>(null);
   const [generatedImage, setGeneratedImage] = useState<HTMLImageElement | null>(null);
 
-  // Load generated image when URL changes
+  // Load generated image when base64 data URL changes
   useEffect(() => {
-    if (item.imageUrl) {
+    if (item.imageDataUrl) {
       const img = new window.Image();
-      // Note: crossOrigin removed to avoid CORS issues with Cloudflare R2
-      // If you need to export canvas later, you may need a CORS proxy
-      img.src = item.imageUrl;
+      img.src = item.imageDataUrl; // data URL avoids CORS tainting
       img.onload = () => {
         setGeneratedImage(img);
       };
     } else {
       setGeneratedImage(null);
     }
-  }, [item.imageUrl]);
+  }, [item.imageDataUrl]);
 
   // Attach transformer when selected
   useEffect(() => {
