@@ -1,5 +1,5 @@
 import type { Metadata } from "next";
-import { Geist, Geist_Mono, Open_Sans, Titan_One } from "next/font/google";
+import { Geist, Geist_Mono, Open_Sans, Titan_One, Comic_Neue } from "next/font/google";
 import "./globals.css";
 import { AudioProvider } from "./components/AudioProvider";
 import MusicToggle from "./components/MusicToggle";
@@ -25,6 +25,12 @@ const titanOne = Titan_One({
   subsets: ["latin"],
 });
 
+const comicNeue = Comic_Neue({
+  variable: "--font-comic-neue",
+  weight: ["300", "400", "700"],
+  subsets: ["latin"],
+});
+
 export const metadata: Metadata = {
   title: "Manga Maker",
   description: "Create amazing manga panels",
@@ -38,7 +44,7 @@ export default function RootLayout({
   return (
     <html lang="en">
       <body
-        className={`${geistSans.variable} ${geistMono.variable} ${openSans.variable} ${titanOne.variable} antialiased`}
+        className={`${geistSans.variable} ${geistMono.variable} ${openSans.variable} ${titanOne.variable} ${comicNeue.variable} antialiased`}
       >
         <AudioProvider initialMusic="/audio/OK POP KO! - Freedom Trail Studio.m4a">
           <MusicToggle />
