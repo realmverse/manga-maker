@@ -1,33 +1,33 @@
-'use client';
+"use client";
 
-import { useAudio } from './AudioProvider';
+import { useAudio } from "./AudioProvider";
 
-type ButtonVariant = 'primary' | 'secondary' | 'disabled';
+type ButtonVariant = "primary" | "secondary" | "disabled";
 
 interface ButtonProps {
   children: React.ReactNode;
   onClick?: () => void;
   variant?: ButtonVariant;
-  size?: 'small' | 'medium' | 'large';
+  size?: "small" | "medium" | "large";
 }
 
-export default function Button({ 
-  children, 
-  onClick, 
-  variant = 'primary',
-  size = 'medium'
+export default function Button({
+  children,
+  onClick,
+  variant = "primary",
+  size = "medium",
 }: ButtonProps) {
   const { playSFX } = useAudio();
 
   const handleHover = () => {
-    if (variant !== 'disabled') {
-      playSFX('/audio/button-hover.wav', 0.3);
+    if (variant !== "disabled") {
+      playSFX("/audio/button-hover.wav", 0.2);
     }
   };
 
   const handleClick = () => {
-    if (variant !== 'disabled') {
-      playSFX('/audio/button-click.wav', 0.5);
+    if (variant !== "disabled") {
+      playSFX("/audio/button-click.wav", 0.2);
       onClick?.();
     }
   };
@@ -44,13 +44,13 @@ export default function Button({
     active:shadow-[2px_2px_0px_0px_rgba(0,0,0,0.8)]
     active:translate-x-[2px] active:translate-y-[2px]
   `;
-  
+
   const sizeStyles = {
     small: "px-6 py-2 text-base",
     medium: "px-10 py-4 text-xl",
-    large: "px-12 py-5 text-2xl"
+    large: "px-12 py-5 text-2xl",
   };
-  
+
   const variantStyles = {
     primary: `
       bg-gradient-to-br from-pink-400 via-pink-500 to-purple-500 
@@ -67,17 +67,19 @@ export default function Button({
       cursor-not-allowed opacity-60
       shadow-[2px_2px_0px_0px_rgba(0,0,0,0.4)]
       border-gray-600
-    `
+    `,
   };
-  
+
   const textStyles = {
-    primary: 'text-white [text-shadow:_-2px_-2px_0_#000,_2px_-2px_0_#000,_-2px_2px_0_#000,_2px_2px_0_#000,_-2px_0_0_#000,_2px_0_0_#000,_0_-2px_0_#000,_0_2px_0_#000]',
-    secondary: 'text-white [text-shadow:_-2px_-2px_0_#000,_2px_-2px_0_#000,_-2px_2px_0_#000,_2px_2px_0_#000,_-2px_0_0_#000,_2px_0_0_#000,_0_-2px_0_#000,_0_2px_0_#000]',
-    disabled: 'text-gray-600'
+    primary:
+      "text-white [text-shadow:_-2px_-2px_0_#000,_2px_-2px_0_#000,_-2px_2px_0_#000,_2px_2px_0_#000,_-2px_0_0_#000,_2px_0_0_#000,_0_-2px_0_#000,_0_2px_0_#000]",
+    secondary:
+      "text-white [text-shadow:_-2px_-2px_0_#000,_2px_-2px_0_#000,_-2px_2px_0_#000,_2px_2px_0_#000,_-2px_0_0_#000,_2px_0_0_#000,_0_-2px_0_#000,_0_2px_0_#000]",
+    disabled: "text-gray-600",
   };
-  
-  const isDisabled = variant === 'disabled';
-  
+
+  const isDisabled = variant === "disabled";
+
   return (
     <button
       onClick={handleClick}
@@ -92,11 +94,12 @@ export default function Button({
     >
       {/* Inner light outline effect */}
       <div className="absolute inset-[2px] rounded-xl border-2 border-white/40 pointer-events-none" />
-      
-      <span className={`relative z-10 flex items-center gap-2 justify-center ${textStyles[variant]}`}>
+
+      <span
+        className={`relative z-10 flex items-center gap-2 justify-center ${textStyles[variant]}`}
+      >
         {children}
       </span>
     </button>
   );
 }
-
