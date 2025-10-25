@@ -29,12 +29,12 @@ interface SpeechBubbleItem {
 }
 
 const SPEECH_BUBBLES = [
-  { name: 'Small', path: '/speech-bubbles/small-speech.png', width: 150, height: 100 },
-  { name: 'Wide', path: '/speech-bubbles/wide-speech.png', width: 200, height: 100 },
-  { name: 'Tall', path: '/speech-bubbles/tall-speech.png', width: 120, height: 180 },
-  { name: 'Thought', path: '/speech-bubbles/thought-speech.png', width: 150, height: 150 },
-  { name: 'Tail', path: '/speech-bubbles/speech-tail.png', width: 140, height: 120 },
-  { name: 'Thought Tail', path: '/speech-bubbles/thought-speech-tail.png', width: 140, height: 140 },
+  { name: 'Small', path: '/speech-bubbles/speech-small.svg', width: 150, height: 100 },
+  { name: 'Wide', path: '/speech-bubbles/speech-wide.svg', width: 200, height: 100 },
+  { name: 'Tall', path: '/speech-bubbles/speech-tall.svg', width: 120, height: 180 },
+  { name: 'Thought', path: '/speech-bubbles/thought-speech.svg', width: 150, height: 150 },
+  { name: 'Tail', path: '/speech-bubbles/speech-tail.svg', width: 140, height: 120 },
+  { name: 'Thought Tail', path: '/speech-bubbles/thought-tail.svg', width: 140, height: 140 },
 ];
 
 export default function MangaCanvas() {
