@@ -1,5 +1,6 @@
 import { GradeResponse } from "@/app/gameloop/manga-grader";
 import { PanelItem } from "./MangaCanvas";
+import Button from "./Button";
 
 const SPEECH_BUBBLES = [
   {
@@ -143,12 +144,14 @@ export default function ToolDisplay({
 
       {/* Text Tool */}
       <div className="flex flex-col gap-2">
-        <button
+        <Button
           onClick={addNewText}
-          className="w-full px-4 py-3 bg-purple-600 hover:bg-purple-700 text-white rounded-lg font-medium transition-colors"
+          variant="tertiary"
+          color="#9333ea"
+          size="small"
         >
           + Add Text
-        </button>
+        </Button>
       </div>
 
       {/* Panels */}
@@ -158,7 +161,7 @@ export default function ToolDisplay({
         </h4>
         <div className="grid grid-cols-3 gap-2">
           {PANEL_RATIOS.map((panel) => (
-            <button
+            <Button
               key={panel.name}
               onClick={() =>
                 addPanel(
@@ -168,10 +171,12 @@ export default function ToolDisplay({
                   panel.genHeight
                 )
               }
-              className="px-2 py-2 bg-green-600 hover:bg-green-700 text-white rounded text-xs font-medium transition-colors"
+              variant="tertiary"
+              color="#16a34a"
+              size="small"
             >
               {panel.name}
-            </button>
+            </Button>
           ))}
         </div>
       </div>
@@ -183,15 +188,17 @@ export default function ToolDisplay({
         </h4>
         <div className="grid grid-cols-2 gap-2">
           {SPEECH_BUBBLES.map((bubble) => (
-            <button
+            <Button
               key={bubble.path}
               onClick={() =>
                 addSpeechBubble(bubble.path, bubble.width, bubble.height)
               }
-              className="px-2 py-2 bg-blue-600 hover:bg-blue-700 text-white rounded text-xs font-medium transition-colors"
+              variant="tertiary"
+              color="#2563eb"
+              size="small"
             >
               {bubble.name}
-            </button>
+            </Button>
           ))}
         </div>
       </div>
@@ -220,13 +227,18 @@ export default function ToolDisplay({
                   }
                 }}
               />
-              <button
+              <Button
                 onClick={() => generatePanelImage(selectedId)}
-                disabled={!panel.prompt.trim() || panel.isGenerating}
-                className="w-full px-3 py-2 bg-green-600 hover:bg-green-700 disabled:bg-gray-600 disabled:cursor-not-allowed text-white rounded text-sm font-medium transition-colors"
+                variant={
+                  !panel.prompt.trim() || panel.isGenerating
+                    ? "disabled"
+                    : "tertiary"
+                }
+                color="#16a34a"
+                size="small"
               >
                 {panel.isGenerating ? "Generating..." : "Generate Image"}
-              </button>
+              </Button>
               {panel.error && (
                 <p className="text-red-400 text-xs mt-2">{panel.error}</p>
               )}
@@ -236,12 +248,14 @@ export default function ToolDisplay({
 
       {/* Delete Button */}
       {selectedId && (
-        <button
+        <Button
           onClick={deleteSelected}
-          className="w-full px-4 py-3 bg-red-600 hover:bg-red-700 text-white rounded-lg font-medium transition-colors"
+          variant="tertiary"
+          color="#dc2626"
+          size="small"
         >
           Delete Selected
-        </button>
+        </Button>
       )}
 
       <div className="flex-1 border-t border-white/20 pt-4 mt-2">
@@ -259,13 +273,14 @@ export default function ToolDisplay({
       {/* Submit / Grading */}
       <div className="border-t border-white/20 pt-3">
         <h4 className="text-white/80 font-semibold text-sm mb-2">Submit</h4>
-        <button
+        <Button
           onClick={submitForGrading}
-          disabled={grading}
-          className="w-full px-3 py-2 bg-indigo-600 hover:bg-indigo-700 disabled:bg-gray-600 disabled:cursor-not-allowed text-white rounded text-sm font-medium transition-colors"
+          variant={grading ? "disabled" : "tertiary"}
+          color="#4f46e5"
+          size="small"
         >
           {grading ? "Submitting…" : "Submit For Review"}
-        </button>
+        </Button>
         {gradeError && (
           <p className="text-red-400 text-xs mt-2">{gradeError}</p>
         )}
