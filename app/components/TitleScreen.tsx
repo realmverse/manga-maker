@@ -19,7 +19,7 @@ export default function TitleScreen({ onStart }: { onStart: () => void }) {
         START
       </Button>
       
-      <div className="absolute bottom-8 text-purple-300 text-sm animate-pulse">
+      <div className="absolute bottom-8 text-gray-800 text-lg font-semibold animate-pulse">
         Press START to begin
       </div>
     </div>
