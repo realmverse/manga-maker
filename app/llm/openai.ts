@@ -18,6 +18,7 @@ export type CallLLMParams = {
   outputFormat?: string; // guidance for expected output format (schema-ish description or prose)
   output?: string; // alias for outputFormat (hackathon convenience)
   input: string; // user content or task payload
+  imageBase64?: string; // optional base64-encoded PNG/JPEG to send alongside the prompt
   expectJson?: boolean; // if true, attempt to parse the response into JSON and return it as `json`
 };
 
@@ -67,27 +68,9 @@ function extractJsonFromText<T = unknown>(text: string): { json?: T; error?: str
     }
   }
 
-  // If still not pure JSON, try to find the first {...} or [..]
-  const firstBrace = body.indexOf("{");
-  const firstBracket = body.indexOf("[");
-  let start = -1;
-  let end = -1;
-
-  if (firstBrace !== -1 && (firstBracket === -1 || firstBrace < firstBracket)) {
-    start = firstBrace;
-    end = body.lastIndexOf("}");
-  } else if (firstBracket !== -1) {
-    start = firstBracket;
-    end = body.lastIndexOf("]");
-  }
-
-  let candidate = body;
-  if (start !== -1 && end !== -1 && end > start) {
-    candidate = body.slice(start, end + 1);
-  }
-
   try {
-    const parsed = JSON.parse(candidate) as T;
+    console.log("Extracted JSON:", body);
+    const parsed = JSON.parse(body) as T;
     return { json: parsed };
   } catch (e: any) {
     return { error: `Failed to parse JSON: ${e?.message || String(e)}` };
@@ -101,7 +84,7 @@ function extractJsonFromText<T = unknown>(text: string): { json?: T; error?: str
  * then call client.responses.create and read response.output_text.
  */
 export async function callLLM<T = unknown>(params: CallLLMParams): Promise<CallLLMResult<T>> {
-  const { model, system, outputFormat, output, input, expectJson } = params;
+  const { model, system, outputFormat, output, input, imageBase64, expectJson } = params;
 
   if (!process.env.OPENAI_API_KEY) {
     throw new Error(
@@ -116,9 +99,25 @@ export async function callLLM<T = unknown>(params: CallLLMParams): Promise<CallL
     input.trim(),
   ].join("");
 
+  // Build input as multimodal when imageBase64 is provided
+  let inputPayload: any = prompt;
+  if (imageBase64 && typeof imageBase64 === "string" && imageBase64.trim().length > 0) {
+    // Support both raw base64 and data URLs
+    inputPayload = [
+      {
+        role: "user",
+        content: [
+          { type: "input_text", text: prompt },
+          { type: "input_image", image_url: imageBase64 },
+        ],
+      },
+    ];
+  }
+
+  console.log("Calling OpenAI with prompt:", inputPayload);
   const response = await openai.responses.create({
     model,
-    input: prompt,
+    input: inputPayload,
   });
 
   // Prefer the convenience string, fallback to assembling from content if needed

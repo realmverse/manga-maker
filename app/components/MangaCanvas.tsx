@@ -4,6 +4,8 @@ import { useRef, useState, useEffect } from 'react';
 import { Stage, Layer, Text, Transformer, Image, Rect, Group } from 'react-konva';
 import Konva from 'konva';
 import { KodoClient } from '@/lib/api/client';
+import { TMangaContract } from '@/app/gameloop/manga-contract-generator';
+import { gradeMangaPage, GradeResponse } from '@/app/gameloop/manga-grader';
 
 interface TextItem {
   id: string;
@@ -63,7 +65,10 @@ const PANEL_RATIOS = [
   { name: '5:4', ratio: 5/4, width: 200, height: 160 },
 ];
 
-export default function MangaCanvas() {
+export default function MangaCanvas({ contract }: { contract: TMangaContract }) {
+  const [grading, setGrading] = useState(false);
+  const [grades, setGrades] = useState<GradeResponse | null>(null);
+  const [gradeError, setGradeError] = useState<string | null>(null);
   const [textItems, setTextItems] = useState<TextItem[]>([]);
   const [speechBubbles, setSpeechBubbles] = useState<SpeechBubbleItem[]>([]);
   const [panels, setPanels] = useState<PanelItem[]>([]);
@@ -178,6 +183,46 @@ export default function MangaCanvas() {
     }
   };
 
+  async function submitForGrading() {
+    if (!stageRef.current) return;
+    setGrading(true);
+    setGradeError(null);
+    setGrades(null);
+
+    // Try to export canvas to data URL. This may fail if cross-origin images are present.
+    let dataUrl: string | null = null;
+    try {
+      dataUrl = stageRef.current.toDataURL({ mimeType: 'image/png', quality: 1, pixelRatio: 2 });
+    } catch (e: any) {
+      setGradeError(
+        'Failed to export canvas. If you used external AI images, the browser may block export due to CORS. Try removing external images or use only text/bubbles.'
+      );
+      setGrading(false);
+      return;
+    }
+
+    if (!dataUrl) {
+      setGradeError('Failed to capture canvas image.');
+      setGrading(false);
+      return;
+    }
+
+    // Use the page-provided contract, adjusting panelCount to current page if needed
+    const derivedContract: TMangaContract = {
+      ...contract,
+      panelCount: Math.max(3, Math.min(5, panels.length || contract.panelCount || 3)),
+    };
+
+    try {
+      const res = await gradeMangaPage(derivedContract, dataUrl, 'gpt-5');
+      setGrades(res);
+    } catch (err: any) {
+      setGradeError(err?.message || 'Grading failed');
+    } finally {
+      setGrading(false);
+    }
+  }
+
   const handleStageClick = (e: Konva.KonvaEventObject<MouseEvent>) => {
     // Deselect when clicking on empty area
     if (e.target === e.target.getStage()) {
@@ -191,6 +236,32 @@ export default function MangaCanvas() {
 
   return (
     <div className="flex gap-6 w-full h-full">
+      {/* Contract Box (left) */}
+      <div className="w-64 flex flex-col gap-2 bg-white/10 backdrop-blur-sm rounded-lg p-4 border border-white/20 overflow-y-auto">
+        <h3 className="text-white font-bold text-lg">Contract</h3>
+        <div className="text-white/90 text-sm">
+          <div className="mt-1"><span className="text-white/60">Genre:</span> {contract.genre}</div>
+          <div className="mt-1"><span className="text-white/60">Tone:</span> {contract.tone}</div>
+          <div className="mt-1"><span className="text-white/60">Audience:</span> {contract.audience}</div>
+          <div className="mt-1"><span className="text-white/60">Panels:</span> {contract.panelCount}</div>
+          <div className="mt-2"><span className="text-white/60">Source:</span> {contract.source}</div>
+          <div className="mt-2"><span className="text-white/60">Intro:</span>
+            <div className="text-white/80 text-xs mt-1 whitespace-pre-wrap">“{contract.introDialogue}”</div>
+          </div>
+          <div className="mt-2"><span className="text-white/60">Constraints:</span>
+            {contract.constraints && contract.constraints.length > 0 ? (
+              <ul className="list-disc list-inside text-white/80 text-xs mt-1">
+                {contract.constraints.map((c, i) => (
+                  <li key={i}>{c}</li>
+                ))}
+              </ul>
+            ) : (
+              <div className="text-white/40 text-xs mt-1">None</div>
+            )}
+          </div>
+        </div>
+      </div>
+
       {/* Canvas */}
       <div className="flex-1 flex items-center justify-center">
         <div 
@@ -291,6 +362,31 @@ export default function MangaCanvas() {
               </button>
             ))}
           </div>
+        </div>
+
+        {/* Submit / Grading */}
+        <div className="border-t border-white/20 pt-3">
+          <h4 className="text-white/80 font-semibold text-sm mb-2">Submit</h4>
+          <button
+            onClick={submitForGrading}
+            disabled={grading}
+            className="w-full px-3 py-2 bg-indigo-600 hover:bg-indigo-700 disabled:bg-gray-600 disabled:cursor-not-allowed text-white rounded text-sm font-medium transition-colors"
+          >
+            {grading ? 'Submitting…' : 'Submit For Review'}
+          </button>
+          {gradeError && (
+            <p className="text-red-400 text-xs mt-2">{gradeError}</p>
+          )}
+          {grades && (
+            <div className="mt-3 space-y-2">
+              {grades.grades.map((g, i) => (
+                <div key={i} className="p-2 rounded bg-white/5 border border-white/10">
+                  <div className="text-white text-sm font-semibold">{g.judge} — {g.score}/100</div>
+                  <div className="text-white/80 text-xs mt-1 whitespace-pre-wrap">{g.review}</div>
+                </div>
+              ))}
+            </div>
+          )}
         </div>
         
         {/* Panel Prompt Input - only show when panel is selected */}

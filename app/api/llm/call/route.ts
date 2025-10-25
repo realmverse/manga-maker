@@ -13,6 +13,7 @@ export async function POST(req: Request) {
     const outputFormat = typeof body?.outputFormat === "string" ? body.outputFormat : undefined;
     const output = typeof body?.output === "string" ? body.output : undefined;
     const expectJson = typeof body?.expectJson === "boolean" ? body.expectJson : false;
+    const imageBase64 = typeof body?.imageBase64 === "string" ? body.imageBase64 : undefined;
 
     if (!model) {
       return NextResponse.json({ error: "Missing required field: model" }, { status: 400 });
@@ -24,7 +25,7 @@ export async function POST(req: Request) {
       return NextResponse.json({ error: "Missing required field: input" }, { status: 400 });
     }
 
-    const result = await callLLM({ model, system, input, outputFormat, output, expectJson });
+    const result = await callLLM({ model, system, input, outputFormat, output, expectJson, imageBase64 });
     // Do not expose low-level raw response by default to the client
     const { raw, ...safe } = result as any;
 

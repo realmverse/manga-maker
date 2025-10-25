@@ -56,6 +56,7 @@ export type CallLLMRequest<TExpectJson extends boolean | undefined = undefined> 
   input: string;
   outputFormat?: string;
   output?: string;
+  imageBase64?: string;
   expectJson?: TExpectJson;
 };
 
@@ -78,16 +79,23 @@ export class LlmClient {
    * Calls the OpenAI Responses API via our server route.
    */
   async call<TJson = unknown>(req: CallLLMRequest): Promise<CallLLMResponse<TJson>> {
+    console.log("LLM call request", JSON.stringify(req));
     const res = await fetch(`${this.basePath}/call`, {
       method: "POST",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify(req),
     });
     const data = (await res.json()) as ApiResult<CallLLMResponse<TJson>>;
+    console.log("LLM call result", JSON.stringify(data));
     if (!res.ok || !data || ("ok" in data && !data.ok)) {
       const msg = (!res.ok && res.statusText) || (!data ? "Unknown error" : (data as any).error);
       throw new Error(msg || "LLM call failed");
     }
-    return (data as any).result as CallLLMResponse<TJson>;
+    console.log("LLM call result", JSON.stringify(data.result));
+    console.log("LLM call result text", data.result.text);
+    if (data.result?.text?.length) {
+      data.result.json = JSON.parse(data.result.text)
+    }
+    return (data.result as CallLLMResponse<TJson>);
   }
 }

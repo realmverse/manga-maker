@@ -11,11 +11,15 @@ export type TMangaContract = {
     source: "boss" | "client" | "auto";
     introDialogue: string; // one sentence diegetic line explaining where it came from
 };
+export type TMangaContracts = {
+    contracts: TMangaContract[]
+};
 
 export function jsonShapeForTMangaContract(): string {
     return (
-        "Return ONLY valid JSON that matches an array of 3 of this TypeScript type (no extra commentary):\n" +
-        "type TMangaContract = {\n" +
+        "Return ONLY valid JSON that matches an this TypeScript type wtih exactly 3 elements (no extra commentary):\n" +
+        "type TMangaContracts = {" +
+        "contracts: {\n" +
         "  genre: string;\n" +
         "  tone: \"wholesome\" | \"dramatic\" | \"comedy\";\n" +
         "  audience: string;\n" +
@@ -24,7 +28,7 @@ export function jsonShapeForTMangaContract(): string {
         "  selfReview: \"well-formed\" | \"boring\" | \"complicated\";\n" +
         "  source: \"boss\" | \"client\" | \"auto\";\n" +
         "  introDialogue: string;\n" +
-        "};\n" +
+        "}};\n" +
         "Rules: Emit JSON only. Do not wrap in markdown fences. Ensure panelCount is 3, 4, or 5."
     );
 }
@@ -64,23 +68,22 @@ export async function generateMangaContract(
         const baseInput = `Difficulty: ${difficulty}`;
 
         const llm = new LlmClient();
-        const { json, text, parseError } = await llm.call<TMangaContract[]>({
+        const { json, text, parseError } = await llm.call<TMangaContracts>({
             model,
             system: randomizeContractSystemPrompt(),
             output: jsonShapeForTMangaContract(),
             input: baseInput,
-            expectJson: true,
         });
 
 
         if (!json) {
             // Keep prior behavior: fail fast on parse errors
             throw new Error(
-                `Failed to parse TMangaContract[] JSON from model. Error: ${parseError || "unknown"}. Raw text: ${text}`
+                `Failed to parse TMangaContracts JSON from model. Error: ${parseError || "unknown"}. Raw text: ${text}`
             );
         }
 
-        for (const contract of json) {
+        for (const contract of json.contracts) {
             last = contract
 
             if (contract.selfReview === "well-formed" || attempt === maxAttempts) {
