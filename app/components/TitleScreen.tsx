@@ -3,7 +3,7 @@ import Button from './Button';
 
 export default function TitleScreen({ onStart }: { onStart: () => void }) {
   return (
-    <div className="flex flex-col items-center gap-12 p-8 text-center animate-fade-in">
+    <div className="flex flex-col items-center justify-center gap-12 p-8 text-center animate-fade-in min-h-screen">
       <div className="space-y-4">
         <Image 
           src="/images/manga-maker-logo.png" 
@@ -15,12 +15,14 @@ export default function TitleScreen({ onStart }: { onStart: () => void }) {
         />
       </div>
       
-      <Button onClick={onStart} variant="primary" size="large">
-        START
-      </Button>
-      
-      <div className="absolute bottom-8 text-gray-800 text-lg font-semibold animate-pulse">
-        Press START to begin
+      <div className="flex flex-col items-center gap-4">
+        <Button onClick={onStart} variant="primary" size="large">
+          START
+        </Button>
+        
+        <div className="text-gray-800 text-lg font-semibold animate-pulse">
+          Press START to begin
+        </div>
       </div>
     </div>
   );

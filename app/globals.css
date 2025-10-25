@@ -12,6 +12,10 @@
   --font-mono: var(--font-geist-mono);
   --font-open-sans: var(--font-open-sans);
   --font-titan-one: var(--font-titan-one);
+
+  /* Remap black and white to zinc variants */
+  --color-black: #09090b; /* zinc-950 */
+  --color-white: #fafafa; /* zinc-100 */
 }
 
 @media (prefers-color-scheme: dark) {
@@ -40,4 +44,9 @@ body {
 
 .animate-fade-in {
   animation: fade-in 0.5s ease-out;
+}
+
+.text-outline {
+  text-shadow: -2px -2px 0 #000, 2px -2px 0 #000, -2px 2px 0 #000,
+    2px 2px 0 #000, -2px 0 0 #000, 2px 0 0 #000, 0 -2px 0 #000, 0 2px 0 #000;
 }

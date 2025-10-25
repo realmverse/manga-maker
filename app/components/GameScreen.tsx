@@ -36,16 +36,16 @@ export default function GameScreen({ onRestart }: { onRestart: () => void }) {
 
   return (
     <div className="flex flex-col items-center gap-6 p-6 w-full h-screen animate-fade-in">
-      <div className="flex items-center justify-between w-full max-w-7xl bg-black/30 backdrop-blur-md rounded-lg px-6 py-4 border border-white/20 shadow-2xl">
-        <h2 className="text-3xl font-bold text-white">
+      <div className="flex items-center justify-between w-full max-w-7xl px-6 py-4 border">
+        <h2 className="text-3xl font-bold text-white text-outline">
           Manga Maker
         </h2>
-        
+
         <Button onClick={onRestart} variant="secondary" size="medium">
           Back to Title
         </Button>
       </div>
-      
+
       <div className="flex-1 w-full max-w-7xl">
         {selected ? (
           <MangaCanvas contract={selected} />
@@ -74,4 +74,3 @@ export default function GameScreen({ onRestart }: { onRestart: () => void }) {
     </div>
   );
 }
-
