@@ -1,4 +1,4 @@
-import {callLLM} from "@/app/llm/openai";
+import { LlmClient } from "@/lib/api/client";
 
 // Hackathon-scope: minimal contract type used for generation
 export type TMangaContract = {
@@ -63,7 +63,8 @@ export async function generateMangaContract(
     for (let attempt = 1; attempt <= maxAttempts; attempt++) {
         const baseInput = `Difficulty: ${difficulty}`;
 
-        const {json, text, parseError} = await callLLM<TMangaContract[]>({
+        const llm = new LlmClient();
+        const { json, text, parseError } = await llm.call<TMangaContract[]>({
             model,
             system: randomizeContractSystemPrompt(),
             output: jsonShapeForTMangaContract(),
