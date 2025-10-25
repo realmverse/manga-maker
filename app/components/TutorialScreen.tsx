@@ -7,7 +7,7 @@ export default function TutorialScreen({ onContinue }: { onContinue: () => void 
         How to Play
       </h2>
       
-      <div className="bg-white/10 backdrop-blur-sm rounded-2xl p-8 space-y-6 border border-white/20">
+      <div className="bg-black/30 backdrop-blur-md rounded-2xl p-8 space-y-6 border border-white/20 shadow-2xl">
         <div className="flex items-start gap-4">
           <div className="flex-shrink-0 w-10 h-10 bg-pink-500 rounded-full flex items-center justify-center text-white font-bold text-xl">
             1

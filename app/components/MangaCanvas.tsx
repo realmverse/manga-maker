@@ -255,7 +255,7 @@ export default function MangaCanvas() {
       </div>
 
       {/* Right Toolbar */}
-      <div className="w-64 flex flex-col gap-4 bg-white/10 backdrop-blur-sm rounded-lg p-4 border border-white/20 overflow-y-auto">
+      <div className="w-64 flex flex-col gap-4 bg-black/30 backdrop-blur-md rounded-lg p-4 border border-white/20 shadow-2xl overflow-y-auto">
         <h3 className="text-white font-bold text-lg">Tools</h3>
         
         {/* Text Tool */}

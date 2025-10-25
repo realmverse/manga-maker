@@ -42,35 +42,46 @@ export function AudioProvider({ children, initialMusic }: AudioProviderProps) {
       backgroundMusicRef.current.loop = true;
       backgroundMusicRef.current.volume = 0.5; // Set default volume to 50%
       
-      // Load initial music if provided
+      // Load initial music if provided (but don't play yet)
       if (initialMusic) {
         backgroundMusicRef.current.src = initialMusic;
         currentMusicSrc.current = initialMusic;
-        
-        // Attempt to play (may be blocked by browser autoplay policy)
-        const playPromise = backgroundMusicRef.current.play();
-        if (playPromise !== undefined) {
-          playPromise
-            .then(() => {
-              musicStartedRef.current = true;
-              console.log('Background music started successfully');
-            })
-            .catch(() => {
-              // Autoplay was prevented - this is expected on most browsers
-              // User will need to interact with the page first
-              console.log('Autoplay prevented - will start on first user interaction');
-            });
-        }
+        // Don't attempt to play automatically - wait for user interaction
       }
-    }
 
-    return () => {
-      // Cleanup audio on unmount
-      if (backgroundMusicRef.current) {
-        backgroundMusicRef.current.pause();
-        backgroundMusicRef.current = null;
-      }
-    };
+      // Start music on first user interaction
+      const startMusicOnInteraction = () => {
+        if (!musicStartedRef.current && backgroundMusicRef.current && currentMusicSrc.current) {
+          const playPromise = backgroundMusicRef.current.play();
+          if (playPromise !== undefined) {
+            playPromise
+              .then(() => {
+                musicStartedRef.current = true;
+                console.log('Background music started on user interaction');
+              })
+              .catch((error) => {
+                console.error('Could not start background music:', error);
+              });
+          }
+        }
+      };
+
+      // Add event listeners for first interaction
+      document.addEventListener('click', startMusicOnInteraction, { once: true });
+      document.addEventListener('keydown', startMusicOnInteraction, { once: true });
+      document.addEventListener('touchstart', startMusicOnInteraction, { once: true });
+
+      return () => {
+        // Cleanup audio and event listeners on unmount
+        document.removeEventListener('click', startMusicOnInteraction);
+        document.removeEventListener('keydown', startMusicOnInteraction);
+        document.removeEventListener('touchstart', startMusicOnInteraction);
+        if (backgroundMusicRef.current) {
+          backgroundMusicRef.current.pause();
+          backgroundMusicRef.current = null;
+        }
+      };
+    }
   }, [initialMusic]);
 
   const toggleMusicMute = () => {
