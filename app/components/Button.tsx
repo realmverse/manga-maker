@@ -53,8 +53,8 @@ export default function Button({
 
   const variantStyles = {
     primary: `
-      bg-gradient-to-br from-pink-400 via-pink-500 to-purple-500 
-      hover:from-pink-300 hover:via-pink-400 hover:to-purple-400
+      bg-gradient-to-br from-[#FF97A1] to-[#FFB2BC]
+      hover:from-[#FFB2BC] hover:to-[#FFCCD3]
       hover:translate-x-[-2px] hover:translate-y-[-2px]
     `,
     secondary: `
