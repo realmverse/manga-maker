@@ -15,6 +15,8 @@ export type TMangaContracts = {
     contracts: TMangaContract[]
 };
 
+export type TDifficulty = "easy" | "medium" | "hard";
+
 export function jsonShapeForTMangaContract(): string {
     return (
         "Return ONLY valid JSON that matches an this TypeScript type wtih exactly 3 elements (no extra commentary):\n" +
@@ -55,8 +57,27 @@ export function randomizeContractSystemPrompt(): string {
     );
 }
 
+export async function generateMangaContracts(
+    difficulty: TDifficulty,
+    model = "gpt-5-mini"
+): Promise<TMangaContract[]> {
+    const llm = new LlmClient();
+    const { json, text, parseError } = await llm.call<TMangaContracts>({
+        model,
+        system: randomizeContractSystemPrompt(),
+        output: jsonShapeForTMangaContract(),
+        input: `Difficulty: ${difficulty}`,
+    });
+    if (!json) {
+        throw new Error(
+            `Failed to parse TMangaContracts JSON from model. Error: ${parseError || "unknown"}. Raw text: ${text}`
+        );
+    }
+    return json.contracts || [];
+}
+
 export async function generateMangaContract(
-    difficulty: "easy" | "medium" | "hard",
+    difficulty: TDifficulty,
     model = "gpt-5-mini"
 ): Promise<TMangaContract> {
     // We try up to 3 times if the self-review indicates the contract isn't well-formed.

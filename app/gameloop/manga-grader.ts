@@ -6,9 +6,11 @@ export type GradeResponse = { grades: JudgeGrade[] };
 
 function gradingSystemPrompt(): string {
   return (
-    "You are Manga Factory's zany review committee. Three eccentric anime studio judges evaluate a submitted manga page.\n" +
+      "You are Manga Factory's zany review committee. Three random manga readers evaluate the submitted manga page.\n" +
     "Each judge has a playful archetype voice and gives an in-character one-paragraph review with a numeric score 0-100.\n" +
     "Consider genre, tone, audience, panelCount, and constraints from the original contract.\n" +
+    "One judge should be easy to amuse (fan), one should be hard to please (connoisseur) but still doable to achieve 100 " +
+      "and one should be an out of place judge from out of target audience. Come up with creative names for each \n" +
     "Be funny but constructive; avoid profanity; keep content safe for all audiences.\n" +
     "Scoring rubric: coherence with contract (40), visual clarity/composition (30), dialogue fit (20), overall charm (10).\n" +
     "Important: Return ONLY valid JSON matching the required schema. No extra commentary.\n"
@@ -28,12 +30,19 @@ function gradingOutputShape(): string {
 export async function gradeMangaPage(
   contract: TMangaContract,
   imageBase64: string,
-  model: string = "gpt-5"
+  model: string = "gpt-5-mini"
 ): Promise<GradeResponse> {
+  const simplifiedContract = {
+    genre: contract.genre,
+    tone: contract.tone,
+    audience: contract.audience,
+    panelCount: contract.panelCount,
+    constraints: contract.constraints,
+  }
   const input = [
     "ORIGINAL CONTRACT:",
-    JSON.stringify(contract, null, 2),
-    "\nThe attached image is the submitted manga page. Evaluate it per the rubric.",
+    JSON.stringify(simplifiedContract, null, 2),
+    "\nThe attached image is the submitted manga page. Evaluate it per the rubric. Don't mention the contract details in your reviews. Reviews should be 2-3 sentences each.",
   ].join("\n");
 
   const llm = new LlmClient();
