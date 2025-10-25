@@ -1,3 +1,5 @@
+import 'server-only';
+
 /**
  * Minimal Kodo image generation client (Realmverse Kodo API)
  *
