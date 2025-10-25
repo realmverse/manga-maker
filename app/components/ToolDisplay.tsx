@@ -196,38 +196,6 @@ export default function ToolDisplay({
         </div>
       </div>
 
-      {/* Submit / Grading */}
-      <div className="border-t border-white/20 pt-3">
-        <h4 className="text-white/80 font-semibold text-sm mb-2">Submit</h4>
-        <button
-          onClick={submitForGrading}
-          disabled={grading}
-          className="w-full px-3 py-2 bg-indigo-600 hover:bg-indigo-700 disabled:bg-gray-600 disabled:cursor-not-allowed text-white rounded text-sm font-medium transition-colors"
-        >
-          {grading ? "Submitting…" : "Submit For Review"}
-        </button>
-        {gradeError && (
-          <p className="text-red-400 text-xs mt-2">{gradeError}</p>
-        )}
-        {grades && (
-          <div className="mt-3 space-y-2">
-            {grades.grades.map((g, i) => (
-              <div
-                key={i}
-                className="p-2 rounded bg-white/5 border border-white/10"
-              >
-                <div className="text-white text-sm font-semibold">
-                  {g.judge} — {g.score}/100
-                </div>
-                <div className="text-white/80 text-xs mt-1 whitespace-pre-wrap">
-                  {g.review}
-                </div>
-              </div>
-            ))}
-          </div>
-        )}
-      </div>
-
       {/* Panel Prompt Input - only show when panel is selected */}
       {selectedId &&
         selectedId.startsWith("panel-") &&
@@ -288,10 +256,36 @@ export default function ToolDisplay({
         </p>
       </div>
 
-      <div className="border-t border-white/20 pt-4 text-white/40 text-xs">
-        Page Size: {mangaWidth} × {mangaHeight}px
-        <br />
-        <span className="text-white/30">(Japanese B5 proportions)</span>
+      {/* Submit / Grading */}
+      <div className="border-t border-white/20 pt-3">
+        <h4 className="text-white/80 font-semibold text-sm mb-2">Submit</h4>
+        <button
+          onClick={submitForGrading}
+          disabled={grading}
+          className="w-full px-3 py-2 bg-indigo-600 hover:bg-indigo-700 disabled:bg-gray-600 disabled:cursor-not-allowed text-white rounded text-sm font-medium transition-colors"
+        >
+          {grading ? "Submitting…" : "Submit For Review"}
+        </button>
+        {gradeError && (
+          <p className="text-red-400 text-xs mt-2">{gradeError}</p>
+        )}
+        {grades && (
+          <div className="mt-3 space-y-2">
+            {grades.grades.map((g, i) => (
+              <div
+                key={i}
+                className="p-2 rounded bg-white/5 border border-white/10"
+              >
+                <div className="text-white text-sm font-semibold">
+                  {g.judge} — {g.score}/100
+                </div>
+                <div className="text-white/80 text-xs mt-1 whitespace-pre-wrap">
+                  {g.review}
+                </div>
+              </div>
+            ))}
+          </div>
+        )}
       </div>
     </div>
   );
