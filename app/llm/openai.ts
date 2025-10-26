@@ -125,7 +125,7 @@ export async function callLLM<T = unknown>(params: CallLLMParams): Promise<CallL
   console.log("Calling OpenAI with prompt:", inputPayload);
   const response = await openai.responses.create({
     model,
-    input: inputPayload,
+    input: inputPayload as never,
   });
 
   // Prefer the convenience string, fallback to assembling from content if needed
