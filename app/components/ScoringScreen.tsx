@@ -31,7 +31,7 @@ export default function ScoringScreen({
   useEffect(() => {
     let mounted = true;
 
-    gradeMangaPage(contract, imageDataUrl, "gpt-5-mini")
+    gradeMangaPage(contract, imageDataUrl)
       .then((res) => {
         if (!mounted) return;
         setError(null);
