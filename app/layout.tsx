@@ -1,5 +1,11 @@
 import type { Metadata } from "next";
-import { Geist, Geist_Mono, Open_Sans, Titan_One, Comic_Neue } from "next/font/google";
+import {
+  Geist,
+  Geist_Mono,
+  Open_Sans,
+  Titan_One,
+  Comic_Neue,
+} from "next/font/google";
 import "./globals.css";
 import { AudioProvider } from "./components/AudioProvider";
 import MusicToggle from "./components/MusicToggle";
@@ -46,8 +52,8 @@ export default function RootLayout({
       <body
         className={`${geistSans.variable} ${geistMono.variable} ${openSans.variable} ${titanOne.variable} ${comicNeue.variable} antialiased`}
         style={{
-          background: 'linear-gradient(to bottom, #FAEFED, #FBF7EB)',
-          minHeight: '100vh',
+          background: "#EBEBED",
+          minHeight: "100vh",
         }}
       >
         <AudioProvider initialMusic="/audio/OK POP KO! - Freedom Trail Studio.m4a">
