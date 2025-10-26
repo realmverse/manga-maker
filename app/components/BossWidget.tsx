@@ -32,7 +32,7 @@ export default function BossWidget() {
   useEffect(() => {
     const scheduleNextMessage = () => {
       // Random interval between 20-60 seconds
-      const randomInterval = Math.random() * 40000 + 20000; // 20000ms = 20s, adding 0-40s
+      const randomInterval = Math.random() * 40000 + 30000;
 
       return setTimeout(() => {
         // Pick a random message
@@ -68,82 +68,60 @@ export default function BossWidget() {
     <div
       className={`
         fixed top-6 right-6 z-50
-        max-w-sm
-        transition-all duration-500 ease-out
-        ${
-          isVisible
-            ? "opacity-100 translate-x-0"
-            : "opacity-0 translate-x-[120%]"
-        }
+        max-w-sm w-96
+        transition-all duration-300 ease-out
+        ${isVisible ? "opacity-100 translate-y-0" : "opacity-0 -translate-y-4"}
       `}
     >
       <div
         className="
-          bg-linear-to-br from-yellow-400 to-orange-500
-          border-4 border-black
+          bg-white/95 backdrop-blur-xl
           rounded-2xl
-          p-4
-          shadow-[6px_6px_0px_0px_rgba(0,0,0,0.8)]
-          flex gap-4 items-start
+          p-3
+          shadow-lg
+          flex gap-3 items-start
+          border border-gray-200/50
         "
       >
-        {/* Boss Avatar */}
+        {/* Boss Avatar - iOS style app icon */}
         <div
           className="
-            w-16 h-16 
-            bg-linear-to-br from-gray-700 to-gray-900
-            border-3 border-black
-            rounded-full
+            w-10 h-10 
+            bg-linear-to-br from-gray-600 to-gray-800
+            rounded-xl
             flex items-center justify-center
-            text-3xl
+            text-xl
             shrink-0
-            shadow-[3px_3px_0px_0px_rgba(0,0,0,0.6)]
+            shadow-sm
           "
         >
           😤
         </div>
 
         {/* Message Content */}
-        <div className="flex-1 flex flex-col gap-2">
-          <div className="flex items-center gap-2">
-            <h3 className="font-titan-one text-white text-outline text-sm">
-              YOUR BOSS
-            </h3>
+        <div className="flex-1 flex flex-col gap-0.5 min-w-0">
+          <div className="flex items-center justify-between gap-2">
+            <h3 className="font-semibold text-gray-900 text-sm">Your Boss</h3>
+            <span className="text-xs text-gray-500">now</span>
           </div>
-          <p className="text-white font-bold text-sm leading-snug drop-shadow-md">
-            {message}
-          </p>
+          <p className="text-gray-700 text-sm leading-relaxed">{message}</p>
         </div>
 
         {/* Dismiss button */}
         <button
           onClick={() => setIsVisible(false)}
           className="
-            text-white hover:text-red-200
-            font-bold text-xl
+            text-gray-400 hover:text-gray-600
+            text-lg
             leading-none
             transition-colors
-            -mt-1 -mr-1
+            -mt-0.5
           "
           aria-label="Dismiss"
         >
           ×
         </button>
       </div>
-
-      {/* Pointer/tail for speech bubble effect */}
-      <div
-        className="
-          absolute -bottom-3 right-12
-          w-0 h-0
-          border-l-20 border-l-transparent
-          border-r-20 border-r-transparent
-          border-t-20 border-t-orange-500
-        "
-        style={{
-          filter: "drop-shadow(2px 2px 0px rgba(0, 0, 0, 0.8))",
-        }}
-      />
     </div>
   );
 }

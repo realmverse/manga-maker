@@ -10,12 +10,12 @@ import {
   Group,
 } from "react-konva";
 import ToolDisplay from "./ToolDisplay";
-import { useRef, useState, useEffect, useMemo } from 'react';
-import Konva from 'konva';
-import { KodoClient } from '@/lib/api/client';
-import { TMangaContract } from '@/app/gameloop/manga-contract-generator';
-import ContractDetails from './ContractDetails';
-import {gradeMangaPage, GradeResponse} from '@/app/gameloop/manga-grader';
+import { useRef, useState, useEffect, useMemo } from "react";
+import Konva from "konva";
+import { KodoClient } from "@/lib/api/client";
+import { TMangaContract } from "@/app/gameloop/manga-contract-generator";
+import ContractDetails from "./ContractDetails";
+import { gradeMangaPage, GradeResponse } from "@/app/gameloop/manga-grader";
 
 interface TextItem {
   id: string;
@@ -186,7 +186,8 @@ export default function MangaCanvas({
             error: undefined,
           });
         } catch (e: unknown) {
-          const msg = e instanceof Error ? e.message : "Failed to load generated image";
+          const msg =
+            e instanceof Error ? e.message : "Failed to load generated image";
           updatePanel(panelId, {
             isGenerating: false,
             error: msg,
@@ -199,7 +200,8 @@ export default function MangaCanvas({
         });
       }
     } catch (error: unknown) {
-      const msg = error instanceof Error ? error.message : "Failed to generate image";
+      const msg =
+        error instanceof Error ? error.message : "Failed to generate image";
       updatePanel(panelId, {
         isGenerating: false,
         error: msg,
@@ -265,10 +267,11 @@ export default function MangaCanvas({
 
     // Fallback: do grading here (legacy flow)
     try {
-      const res = await gradeMangaPage(derivedContract, dataUrl, 'gpt-5-mini');
+      const res = await gradeMangaPage(derivedContract, dataUrl, "gpt-5-mini");
       setGrades(res);
-    } catch (err: unknown ) {
-      setGradeError(err?.message || "Grading failed");
+    } catch (err: unknown) {
+      const msg = err instanceof Error ? err.message : "Grading failed";
+      setGradeError(msg);
     } finally {
       setGrading(false);
     }
@@ -684,8 +687,8 @@ function Panel({ item, isSelected, onSelect, onChange }: PanelProps) {
           width={item.width}
           height={item.height}
           fill={generatedImage ? "#ffffff" : "#f0f0f0"}
-          stroke={isSelected ? "#10b981" : "#cccccc"}
-          strokeWidth={isSelected ? 3 : 2}
+          stroke={isSelected ? "#10b981" : "#000000"}
+          strokeWidth={isSelected ? 6 : 4}
         />
 
         {/* Generated image or placeholder */}
