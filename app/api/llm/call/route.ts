@@ -26,12 +26,13 @@ export async function POST(req: Request) {
     }
 
     const result = await callLLM({ model, system, input, outputFormat, output, expectJson, imageBase64 });
-    // Do not expose low-level raw response by default to the client
-    const { raw, ...safe } = result as any;
+    // Remove raw field for client safety
+    const { text, model: usedModel, json, parseError, usage } = result;
+    const safe = { text, model: usedModel, json, parseError, usage };
 
     return NextResponse.json({ ok: true, result: safe });
-  } catch (err: any) {
-    const message = err?.message || "Internal Server Error";
+  } catch (err: unknown) {
+    const message = err instanceof Error ? err.message : "Internal Server Error";
     return NextResponse.json({ ok: false, error: message }, { status: 500 });
   }
 }

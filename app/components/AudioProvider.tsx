@@ -34,15 +34,12 @@ interface AudioProviderProps {
 
 export function AudioProvider({ children, initialMusic }: AudioProviderProps) {
   const [isMusicMuted, setIsMusicMuted] = useState(false);
-  const [isClient, setIsClient] = useState(false);
   const backgroundMusicRef = useRef<HTMLAudioElement | null>(null);
   const currentMusicSrc = useRef<string | null>(null);
   const musicStartedRef = useRef<boolean>(false);
 
   // Initialize on client side only
   useEffect(() => {
-    setIsClient(true);
-
     // Create background music audio element
     if (typeof window !== "undefined") {
       backgroundMusicRef.current = new Audio();

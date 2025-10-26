@@ -27,8 +27,8 @@ export type KodoCreateJobResponse = {
   }>;
   createdTimestamp?: number;
   statusTimestamp?: number;
-  params?: Record<string, any>;
-  metadata?: Record<string, any>;
+  params?: Record<string, unknown>;
+  metadata?: Record<string, unknown>;
 };
 
 export type KodoGetJobResponse = KodoCreateJobResponse;

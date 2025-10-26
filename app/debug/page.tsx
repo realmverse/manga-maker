@@ -1,8 +1,9 @@
 "use client";
 
 import { useState } from "react";
+import Image from "next/image";
 import { KodoClient } from "@/lib/api/client";
-import { generateMangaContract, TMangaContract } from "@/app/gameloop/manga-contract-generator";
+import { generateMangaContract, TMangaContract, TDifficulty } from "@/app/gameloop/manga-contract-generator";
 
 export default function DebugPage() {
   const [difficulty, setDifficulty] = useState<"easy" | "medium" | "hard">("easy");
@@ -15,6 +16,12 @@ export default function DebugPage() {
   const [imageError, setImageError] = useState<string | null>(null);
   const [loadingImage, setLoadingImage] = useState(false);
 
+  function errorMessage(err: unknown): string {
+    if (err instanceof Error) return err.message;
+    if (typeof err === "string") return err;
+    try { return JSON.stringify(err); } catch { return String(err); }
+  }
+
   async function onGenerateContract() {
     setLoadingContract(true);
     setContractError(null);
@@ -22,8 +29,8 @@ export default function DebugPage() {
     try {
       const c = await generateMangaContract(difficulty, "gpt-5-mini");
       setContract(c);
-    } catch (e: any) {
-      setContractError(e?.message || String(e));
+    } catch (e: unknown) {
+      setContractError(errorMessage(e));
     } finally {
       setLoadingContract(false);
     }
@@ -37,8 +44,8 @@ export default function DebugPage() {
       const kodo = new KodoClient();
       const r = await kodo.generate({ description: desc });
       setImageUrl(r.url);
-    } catch (e: any) {
-      setImageError(e?.message || String(e));
+    } catch (e: unknown) {
+      setImageError(errorMessage(e));
     } finally {
       setLoadingImage(false);
     }
@@ -57,7 +64,7 @@ export default function DebugPage() {
           <label>Difficulty:</label>
           <select
             value={difficulty}
-            onChange={(e) => setDifficulty(e.target.value as any)}
+            onChange={(e: React.ChangeEvent<HTMLSelectElement>) => setDifficulty(e.target.value as TDifficulty)}
             style={{ padding: 6, borderRadius: 6, border: "1px solid #d1d5db" }}
           >
             <option value="easy">easy</option>
@@ -104,7 +111,7 @@ export default function DebugPage() {
         )}
         {imageUrl && (
           <div style={{ marginTop: 12 }}>
-            <img src={imageUrl} alt="Generated panel" style={{ maxWidth: "100%", borderRadius: 8 }} />
+            <Image src={imageUrl} alt="Generated panel" width={1024} height={1024} style={{ width: "100%", height: "auto", borderRadius: 8 }} unoptimized />
             <div style={{ marginTop: 6, color: "#6b7280" }}>{imageUrl}</div>
           </div>
         )}

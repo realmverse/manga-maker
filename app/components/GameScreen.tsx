@@ -12,13 +12,12 @@ import ScoringScreen from './ScoringScreen';
 export default function GameScreen({ onRestart }: { onRestart: () => void }) {
   const [contracts, setContracts] = useState<TMangaContract[] | null>(null);
   const [error, setError] = useState<string | null>(null);
-  const [loading, setLoading] = useState<boolean>(false);
+  const [loading, setLoading] = useState<boolean>(true);
   const [selected, setSelected] = useState<TMangaContract | null>(null);
   const [scoring, setScoring] = useState<{ contract: TMangaContract; image: string } | null>(null);
 
   useEffect(() => {
     let mounted = true;
-    setLoading(true);
     generateMangaContracts('easy')
       .then(list => {
         if (!mounted) return;

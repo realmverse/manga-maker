@@ -72,8 +72,9 @@ function extractJsonFromText<T = unknown>(text: string): { json?: T; error?: str
     console.log("Extracted JSON:", body);
     const parsed = JSON.parse(body) as T;
     return { json: parsed };
-  } catch (e: any) {
-    return { error: `Failed to parse JSON: ${e?.message || String(e)}` };
+  } catch (e: unknown) {
+    const msg = e instanceof Error ? e.message : String(e);
+    return { error: `Failed to parse JSON: ${msg}` };
   }
 }
 
@@ -100,7 +101,14 @@ export async function callLLM<T = unknown>(params: CallLLMParams): Promise<CallL
   ].join("");
 
   // Build input as multimodal when imageBase64 is provided
-  let inputPayload: any = prompt;
+  type InputMessage = {
+    role: "user";
+    content: Array<
+      | { type: "input_text"; text: string }
+      | { type: "input_image"; image_url: string }
+    >;
+  };
+  let inputPayload: string | InputMessage[] = prompt;
   if (imageBase64 && typeof imageBase64 === "string" && imageBase64.trim().length > 0) {
     // Support both raw base64 and data URLs
     inputPayload = [
@@ -127,9 +135,9 @@ export async function callLLM<T = unknown>(params: CallLLMParams): Promise<CallL
     text,
     model,
     usage: {
-      inputTokens: (response as any).usage?.input_tokens,
-      outputTokens: (response as any).usage?.output_tokens,
-      totalTokens: (response as any).usage?.total_tokens,
+      inputTokens: response.usage?.input_tokens,
+      outputTokens: response.usage?.output_tokens,
+      totalTokens: response.usage?.total_tokens,
     },
     raw: response,
   };

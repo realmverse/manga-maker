@@ -10,7 +10,7 @@ import {
   Group,
 } from "react-konva";
 import ToolDisplay from "./ToolDisplay";
-import { useRef, useState, useEffect } from 'react';
+import { useRef, useState, useEffect, useMemo } from 'react';
 import Konva from 'konva';
 import { KodoClient } from '@/lib/api/client';
 import { TMangaContract } from '@/app/gameloop/manga-contract-generator';
@@ -185,10 +185,11 @@ export default function MangaCanvas({
             imageDataUrl: dataUrl,
             error: undefined,
           });
-        } catch (e: any) {
+        } catch (e: unknown) {
+          const msg = e instanceof Error ? e.message : "Failed to load generated image";
           updatePanel(panelId, {
             isGenerating: false,
-            error: e?.message || "Failed to load generated image",
+            error: msg,
           });
         }
       } else {
@@ -197,10 +198,11 @@ export default function MangaCanvas({
           error: `Generation ${result.status}`,
         });
       }
-    } catch (error: any) {
+    } catch (error: unknown) {
+      const msg = error instanceof Error ? error.message : "Failed to generate image";
       updatePanel(panelId, {
         isGenerating: false,
-        error: error.message || "Failed to generate image",
+        error: msg,
       });
     }
   };
@@ -228,7 +230,7 @@ export default function MangaCanvas({
         quality: 1,
         pixelRatio: 2,
       });
-    } catch (e: any) {
+    } catch {
       setGradeError(
         "Failed to export canvas. If you used external AI images, the browser may block export due to CORS. Try removing external images or use only text/bubbles."
       );
@@ -265,7 +267,7 @@ export default function MangaCanvas({
     try {
       const res = await gradeMangaPage(derivedContract, dataUrl, 'gpt-5-mini');
       setGrades(res);
-    } catch (err: any) {
+    } catch (err: unknown ) {
       setGradeError(err?.message || "Grading failed");
     } finally {
       setGrading(false);
@@ -382,12 +384,12 @@ function EditableText({
   const transformerRef = useRef<Konva.Transformer>(null);
 
   // Attach transformer when selected
-  useState(() => {
+  useEffect(() => {
     if (isSelected && transformerRef.current && textRef.current) {
       transformerRef.current.nodes([textRef.current]);
       transformerRef.current.getLayer()?.batchDraw();
     }
-  });
+  }, [isSelected]);
 
   const handleDragEnd = (e: Konva.KonvaEventObject<DragEvent>) => {
     onChange({
@@ -627,21 +629,11 @@ interface PanelProps {
 function Panel({ item, isSelected, onSelect, onChange }: PanelProps) {
   const groupRef = useRef<Konva.Group>(null);
   const transformerRef = useRef<Konva.Transformer>(null);
-  const [generatedImage, setGeneratedImage] = useState<HTMLImageElement | null>(
-    null
-  );
-
-  // Load generated image when base64 data URL changes
-  useEffect(() => {
-    if (item.imageDataUrl) {
-      const img = new window.Image();
-      img.src = item.imageDataUrl; // data URL avoids CORS tainting
-      img.onload = () => {
-        setGeneratedImage(img);
-      };
-    } else {
-      setGeneratedImage(null);
-    }
+  const generatedImage = useMemo(() => {
+    if (!item.imageDataUrl) return null;
+    const img = new window.Image();
+    img.src = item.imageDataUrl; // data URL avoids CORS tainting
+    return img;
   }, [item.imageDataUrl]);
 
   // Attach transformer when selected

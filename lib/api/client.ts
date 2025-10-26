@@ -44,11 +44,16 @@ export class KodoClient {
       body: JSON.stringify(req),
     });
     const data = (await res.json()) as ApiResult<GenerateKodoImageResponse>;
-    if (!res.ok || !data || ("ok" in data && !data.ok)) {
-      const msg = (!res.ok && res.statusText) || (!data ? "Unknown error" : (data as any).error);
-      throw new Error(msg || "Kodo generate failed");
+    if (!res.ok) {
+      throw new Error(res.statusText || "Kodo generate failed");
     }
-    return (data as any).result as GenerateKodoImageResponse;
+    if (!data) {
+      throw new Error("Unknown error");
+    }
+    if (data.ok) {
+      return data.result;
+    }
+    throw new Error(data.error || "Kodo generate failed");
   }
 }
 
@@ -89,15 +94,21 @@ export class LlmClient {
     });
     const data = (await res.json()) as ApiResult<CallLLMResponse<TJson>>;
     console.log("LLM call result", JSON.stringify(data));
-    if (!res.ok || !data || ("ok" in data && !data.ok)) {
-      const msg = (!res.ok && res.statusText) || (!data ? "Unknown error" : (data as any).error);
-      throw new Error(msg || "LLM call failed");
+    if (!res.ok) {
+      throw new Error(res.statusText || "LLM call failed");
     }
-    console.log("LLM call result", JSON.stringify(data.result));
-    console.log("LLM call result text", data.result.text);
-    if (data.result?.text?.length) {
-      data.result.json = JSON.parse(data.result.text)
+    if (!data) {
+      throw new Error("Unknown error");
     }
-    return (data.result as CallLLMResponse<TJson>);
+    if (!data.ok) {
+      throw new Error(data.error || "LLM call failed");
+    }
+    const result = data.result;
+    console.log("LLM call result", JSON.stringify(result));
+    console.log("LLM call result text", result.text);
+    if (result?.text?.length) {
+      result.json = JSON.parse(data.result.text)
+    }
+    return result;
   }
 }

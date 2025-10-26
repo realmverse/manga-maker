@@ -20,10 +20,9 @@ export async function POST(req: Request) {
     const result = await generateKodoImage({ description, width, height, pollIntervalMs, timeoutMs });
 
     return NextResponse.json({ ok: true, result });
-  } catch (err: any) {
-    const message = err?.message || "Internal Server Error";
+  } catch (err: unknown) {
+    const message = err instanceof Error ? err.message : "Internal Server Error";
     // Avoid leaking secrets; send generic message for 500s
-    const status = message?.includes("Missing required env var") ? 500 : 500;
-    return NextResponse.json({ ok: false, error: message }, { status });
+    return NextResponse.json({ ok: false, error: message }, { status: 500 });
   }
 }

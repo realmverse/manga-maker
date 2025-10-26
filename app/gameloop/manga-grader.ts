@@ -60,10 +60,11 @@ export async function gradeMangaPage(
 
   // Sanitize: exactly 3 judges, integer 0..100
   const sanitized: GradeResponse = {
-    grades: (json.grades || []).slice(0, 3).map((g: any) => ({
+    grades: (json.grades || []).slice(0, 3).map((g: Partial<JudgeGrade>) => ({
       judge: String(g?.judge ?? "Mysterious Judge"),
+      name: String(g?.name ?? "Anonymous"),
       review: String(g?.review ?? ""),
-      score: Math.max(0, Math.min(100, Math.round(Number(g?.score) || 0))),
+      score: Math.max(0, Math.min(100, Math.round(typeof g?.score === "number" ? g.score : Number(g?.score) || 0))),
     })),
   };
 

@@ -30,16 +30,16 @@ export default function ScoringScreen({
 
   useEffect(() => {
     let mounted = true;
-    setLoading(true);
-    setError(null);
-    setGrades(null);
+
     gradeMangaPage(contract, imageDataUrl, "gpt-5-mini")
       .then((res) => {
         if (!mounted) return;
+        setError(null);
         setGrades(res);
       })
-      .catch((e: any) => {
+      .catch((e: { message: string} ) => {
         if (!mounted) return;
+        setGrades(null);
         setError(e?.message || "Grading failed");
       })
       .finally(() => {
