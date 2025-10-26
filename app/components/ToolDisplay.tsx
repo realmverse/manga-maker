@@ -145,7 +145,7 @@ export default function ToolDisplay({
         <Button
           onClick={addNewText}
           variant="tertiary"
-          color="#9333ea"
+          color="#a1a1aa"
           size="small"
         >
           + Add Text
@@ -170,7 +170,7 @@ export default function ToolDisplay({
                 )
               }
               variant="tertiary"
-              color="#16a34a"
+              color="#a1a1aa"
               size="small"
             >
               {panel.name}
@@ -192,7 +192,7 @@ export default function ToolDisplay({
                 addSpeechBubble(bubble.path, bubble.width, bubble.height)
               }
               variant="tertiary"
-              color="#2563eb"
+              color="#a1a1aa"
               size="small"
             >
               {bubble.name}
@@ -273,9 +273,7 @@ export default function ToolDisplay({
         <h4 className="text-white/80 font-semibold text-sm mb-2">Submit</h4>
         <Button
           onClick={submitForGrading}
-          variant={grading ? "disabled" : "tertiary"}
-          color="#4f46e5"
-          size="small"
+          variant={grading ? "disabled" : "primary"}
         >
           {grading ? "Submitting…" : "Submit For Review"}
         </Button>
