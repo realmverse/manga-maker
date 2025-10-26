@@ -74,6 +74,11 @@ export default function MangaCanvas({
   const [selectedId, setSelectedId] = useState<string | null>(null);
   const stageRef = useRef<Konva.Stage>(null);
   const kodoClient = useRef(new KodoClient());
+  // Keep a ref to panels to avoid stale closures during concurrent async ops
+  const panelsRef = useRef<PanelItem[]>([]);
+  useEffect(() => {
+    panelsRef.current = panels;
+  }, [panels]);
 
   const addNewText = () => {
     const newText: TextItem = {
@@ -87,7 +92,7 @@ export default function MangaCanvas({
       rotation: 0,
       width: 200,
     };
-    setTextItems([...textItems, newText]);
+    setTextItems((prev) => [...prev, newText]);
     setSelectedId(newText.id);
   };
 
@@ -107,7 +112,7 @@ export default function MangaCanvas({
       scaleX: 1,
       scaleY: 1,
     };
-    setSpeechBubbles([...speechBubbles, newBubble]);
+    setSpeechBubbles((prev) => [...prev, newBubble]);
     setSelectedId(newBubble.id);
   };
 
@@ -131,32 +136,31 @@ export default function MangaCanvas({
       prompt: "",
       isGenerating: false,
     };
-    setPanels([...panels, newPanel]);
+    setPanels((prev) => [...prev, newPanel]);
     setSelectedId(newPanel.id);
   };
 
   const updateText = (id: string, updates: Partial<TextItem>) => {
-    setTextItems(
-      textItems.map((item) => (item.id === id ? { ...item, ...updates } : item))
+    setTextItems((prev) =>
+      prev.map((item) => (item.id === id ? { ...item, ...updates } : item))
     );
   };
 
   const updateBubble = (id: string, updates: Partial<SpeechBubbleItem>) => {
-    setSpeechBubbles(
-      speechBubbles.map((item) =>
-        item.id === id ? { ...item, ...updates } : item
-      )
+    setSpeechBubbles((prev) =>
+      prev.map((item) => (item.id === id ? { ...item, ...updates } : item))
     );
   };
 
   const updatePanel = (id: string, updates: Partial<PanelItem>) => {
-    setPanels(
-      panels.map((item) => (item.id === id ? { ...item, ...updates } : item))
+    setPanels((prev) =>
+      prev.map((item) => (item.id === id ? { ...item, ...updates } : item))
     );
   };
 
   const generatePanelImage = async (panelId: string) => {
-    const panel = panels.find((p) => p.id === panelId);
+    // Read the latest panel state from ref to avoid stale closures during concurrent generations
+    const panel = panelsRef.current.find((p) => p.id === panelId);
     if (!panel || !panel.prompt.trim()) return;
 
     updatePanel(panelId, { isGenerating: true, error: undefined });
@@ -212,9 +216,9 @@ export default function MangaCanvas({
 
   const deleteSelected = () => {
     if (selectedId) {
-      setTextItems(textItems.filter((item) => item.id !== selectedId));
-      setSpeechBubbles(speechBubbles.filter((item) => item.id !== selectedId));
-      setPanels(panels.filter((item) => item.id !== selectedId));
+      setTextItems((prev) => prev.filter((item) => item.id !== selectedId));
+      setSpeechBubbles((prev) => prev.filter((item) => item.id !== selectedId));
+      setPanels((prev) => prev.filter((item) => item.id !== selectedId));
       setSelectedId(null);
     }
   };
