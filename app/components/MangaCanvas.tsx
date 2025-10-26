@@ -60,8 +60,10 @@ export interface PanelItem {
 
 export default function MangaCanvas({
   contract,
+  onSubmitForGrading,
 }: {
   contract: TMangaContract;
+  onSubmitForGrading?: (contract: TMangaContract, imageDataUrl: string) => void;
 }) {
   const [grading, setGrading] = useState(false);
   const [grades, setGrades] = useState<GradeResponse | null>(null);
@@ -249,6 +251,17 @@ export default function MangaCanvas({
       ),
     };
 
+    // If a parent handler is provided, delegate navigation to scoring screen
+    if (onSubmitForGrading) {
+      try {
+        onSubmitForGrading(derivedContract, dataUrl);
+      } finally {
+        setGrading(false);
+      }
+      return;
+    }
+
+    // Fallback: do grading here (legacy flow)
     try {
       const res = await gradeMangaPage(derivedContract, dataUrl, 'gpt-5-mini');
       setGrades(res);
