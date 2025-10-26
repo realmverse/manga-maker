@@ -1,4 +1,7 @@
-# AI Manga Maker 🎨
+<img width="2900" height="2160" alt="extradosed-unclimaxed-carmel ngrok-free dev_" src="https://github.com/user-attachments/assets/df859a66-df95-4331-866b-4ed23036b965" />
+
+# AI Manga Maker
+🎨
 
 An AI-powered manga creation game where players assume the role of an overworked manga artist, picking up work projects from their high-pressure boss and creating manga panels to fulfill client contracts.
 
