@@ -75,9 +75,9 @@ export default function LoadingComponent({ title = "Loading contracts", subtitle
       </div>
       {/* Progress bar (indeterminate) */}
       <div className="w-full h-2 bg-white/10 rounded overflow-hidden">
-        <div className="h-full w-1/3 bg-gradient-to-r from-purple-500 via-indigo-500 to-green-500 animate-pulse rounded" />
+        <div className="h-full w-1/3 bg-linear-to-r from-purple-500 via-indigo-500 to-green-500 animate-pulse rounded" />
       </div>
-      <div className="mt-3 text-sm text-white/80 min-h-[1.5rem]">
+      <div className="mt-3 text-sm text-white/80 min-h-6">
         {excuses[index]}
       </div>
     </div>
