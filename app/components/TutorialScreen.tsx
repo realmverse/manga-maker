@@ -1,5 +1,6 @@
 import Button from "./Button";
 import Label from "./Label";
+import Image from "next/image";
 
 export default function TutorialScreen({
   onContinue,
@@ -71,7 +72,15 @@ export default function TutorialScreen({
             </div>
 
             {/* Center diagram/image area */}
-            <div className="relative my-12 min-h-[300px] flex items-center justify-center"></div>
+            <div className="relative my-12 min-h-[300px] flex items-center justify-center">
+              <Image
+                src="/images/tutorial-placeholder.png"
+                alt="Tutorial diagram"
+                width={600}
+                height={300}
+                className="rounded-lg"
+              />
+            </div>
 
             {/* Bottom description text - Chalk style */}
             <div className="text-center mt-8">
