@@ -140,7 +140,6 @@ This project is open source and available for educational and non-commercial use
 
 ## 🔗 Links
 
-- **Repository**: [github.com/realmverse/manga-maker](https://github.com/realmverse/manga-maker)
 - **Kodo AI on X**: [@kodo_ai](https://x.com/kodo_ai)
 - **Kodo AI Substack**: [kodoai.substack.com](https://substack.com/@kodoai)
 
