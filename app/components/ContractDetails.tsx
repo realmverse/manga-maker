@@ -9,8 +9,8 @@ export default function ContractDetails({
   contract: TMangaContract;
 }) {
   return (
-    <div className="w-64 flex flex-col bg-[#FCF6D7] rounded-3xl border-2 border-[#664950] overflow-y-auto text-black font-comic-neue">
-      <div className="bg-linear-to-b from-[#9B7EBD] to-[#B89FD4] rounded-t-[20px] px-4 py-3 -mx-[2px] -mt-[2px] border-b-2 border-[#664950]">
+    <div className="w-64 flex flex-col bg-[#FCF6D7] rounded-3xl border-2 border-[#664950] overflow-y-auto overflow-x-hidden text-black font-comic-neue">
+      <div className="bg-linear-to-b from-[#9B7EBD] to-[#B89FD4] rounded-t-[20px] px-4 py-3 border-b-2 border-[#664950]">
         <h3 className="font-titan-one text-lg text-white text-center drop-shadow-md">
           Contract
         </h3>

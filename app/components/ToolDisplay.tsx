@@ -137,23 +137,27 @@ export default function ToolDisplay({
   deleteSelected,
 }: ToolDisplayProps) {
   return (
-    <div className="w-64 flex flex-col gap-4 bg-zinc-100 rounded-lg p-4 border-2 border-zinc-950 shadow-2xl overflow-y-auto">
-      <h3 className="text-black font-titan-one text-lg">Tools</h3>
+    <div className="w-64 flex flex-col bg-[#FCF6D7] rounded-3xl border-2 border-[#664950] shadow-2xl overflow-y-auto overflow-x-hidden font-comic-neue">
+      <div className="bg-linear-to-b from-[#9B7EBD] to-[#B89FD4] rounded-t-[20px] px-4 py-3 border-b-2 border-[#664950]">
+        <h3 className="font-titan-one text-lg text-white text-center drop-shadow-md">Tools</h3>
+      </div>
+      <div className="flex flex-col gap-4 p-4">
 
-      {/* Text Tool */}
-      <div className="flex flex-col gap-2">
-        <Button
-          onClick={addNewText}
-          variant="tertiary"
-          color="#a1a1aa"
-          size="small"
-        >
-          + Add Text
-        </Button>
+      {/* Instructions */}
+      <div>
+        <p className="text-black/60 text-sm whitespace-pre-line">
+          {selectedId
+            ? selectedId.startsWith("text-")
+              ? "✓ Text selected\n\nDrag to move\nUse handles to resize/rotate\nDouble-click to edit"
+              : selectedId.startsWith("panel-")
+              ? "✓ Panel selected\n\nEnter a prompt below to generate an AI image"
+              : "✓ Bubble selected\n\nDrag to move\nUse handles to resize/rotate"
+            : "Add panels, text, or speech bubbles to get started"}
+        </p>
       </div>
 
       {/* Panels */}
-      <div className="border-t border-white/20 pt-3">
+      <div className="border-t border-[#664950]/20 pt-3">
         <h4 className="text-black font-semibold text-sm mb-2">
           AI Image Panels
         </h4>
@@ -180,7 +184,7 @@ export default function ToolDisplay({
       </div>
 
       {/* Speech Bubbles */}
-      <div className="border-t border-white/20 pt-3">
+      <div className="border-t border-[#664950]/20 pt-3">
         <h4 className="text-black font-semibold text-sm mb-2">
           Speech Bubbles
         </h4>
@@ -201,13 +205,28 @@ export default function ToolDisplay({
         </div>
       </div>
 
+      {/* Text Tool */}
+      <div className="border-t border-[#664950]/20 pt-3">
+        <h4 className="text-black font-semibold text-sm mb-2">
+          Text
+        </h4>
+        <Button
+          onClick={addNewText}
+          variant="tertiary"
+          color="#a1a1aa"
+          size="small"
+        >
+          + Add Text
+        </Button>
+      </div>
+
       {/* Panel Prompt Input - only show when panel is selected */}
       {selectedId &&
         selectedId.startsWith("panel-") &&
         (() => {
           const panel = panels.find((p) => p.id === selectedId);
           return panel ? (
-            <div className="border-t border-black/20 pt-3">
+            <div className="border-t border-[#664950]/20 pt-3">
               <h4 className="text-black font-semibold text-sm mb-2">
                 Generate AI Image
               </h4>
@@ -218,7 +237,7 @@ export default function ToolDisplay({
                   updatePanel(selectedId, { prompt: e.target.value })
                 }
                 placeholder="Describe the image..."
-                className="w-full px-3 py-2 bg-white/10 text-black rounded border border-white/20 text-sm placeholder-white/40 focus:outline-none focus:border-green-500 mb-2"
+                className="w-full px-3 py-2 bg-white text-black rounded border border-[#664950]/30 text-sm placeholder-black/40 focus:outline-none focus:border-[#9B7EBD] mb-2"
                 onKeyDown={(e) => {
                   if (e.key === "Enter" && !panel.isGenerating) {
                     generatePanelImage(selectedId);
@@ -246,31 +265,21 @@ export default function ToolDisplay({
 
       {/* Delete Button */}
       {selectedId && (
-        <Button
-          onClick={deleteSelected}
-          variant="tertiary"
-          color="#dc2626"
-          size="small"
-        >
-          Delete Selected
-        </Button>
+        <div className="border-t border-[#664950]/20 pt-3">
+          <Button
+            onClick={deleteSelected}
+            variant="tertiary"
+            color="#dc2626"
+            size="small"
+          >
+            Delete Selected
+          </Button>
+        </div>
       )}
 
-      <div className="flex-1 border-t border-black/20 pt-4 mt-2">
-        <p className="text-black/60 text-sm whitespace-pre-line">
-          {selectedId
-            ? selectedId.startsWith("text-")
-              ? "✓ Text selected\n\nDrag to move\nUse handles to resize/rotate\nDouble-click to edit"
-              : selectedId.startsWith("panel-")
-              ? "✓ Panel selected\n\nEnter a prompt above to generate an AI image"
-              : "✓ Bubble selected\n\nDrag to move\nUse handles to resize/rotate"
-            : "Add panels, text, or speech bubbles to get started"}
-        </p>
-      </div>
-
       {/* Submit / Grading */}
-      <div className="border-t border-white/20 pt-3">
-        <h4 className="text-black/80 font-semibold text-sm mb-2">Submit</h4>
+      <div className="border-t border-[#664950]/20 pt-3">
+        <h4 className="text-black font-semibold text-sm mb-2">Submit</h4>
         <Button
           onClick={submitForGrading}
           variant={grading ? "disabled" : "primary"}
@@ -285,18 +294,19 @@ export default function ToolDisplay({
             {grades.grades.map((g, i) => (
               <div
                 key={i}
-                className="p-2 rounded bg-white/5 border border-white/10"
+                className="p-2 rounded bg-white border border-[#664950]/20"
               >
-                <div className="text-white text-sm font-semibold">
+                <div className="text-black text-sm font-semibold">
                   {g.judge} — {g.score}/100
                 </div>
-                <div className="text-white/80 text-xs mt-1 whitespace-pre-wrap">
+                <div className="text-black/80 text-xs mt-1 whitespace-pre-wrap">
                   {g.review}
                 </div>
               </div>
             ))}
           </div>
         )}
+      </div>
       </div>
     </div>
   );
