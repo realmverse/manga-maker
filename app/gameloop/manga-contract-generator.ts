@@ -53,7 +53,8 @@ export function randomizeContractSystemPrompt(): string {
         "- \"client\" = external sponsor request routed to the team.\n" +
         "- \"auto\" = overnight Auto-Dispatcher batch job.\n" +
         "IntroDialogue must be an in-world dialogue that explains the arrival of the brief, matching the source. Make it satire. \n" +
-        "At the end, include a brief self-review of the contract's creativity and clarity.\n"
+        "At the end, include a brief self-review of the contract's creativity and clarity.\n" +
+        `All strings should be in ${process.env.NEXT_PUBLIC_OPENAI_OUTPUT_LANGUAGE || 'English'} language and well-formed.`
     );
 }
 
