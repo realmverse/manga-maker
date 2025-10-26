@@ -13,7 +13,9 @@ function gradingSystemPrompt(): string {
       "and one should be a judge from outside of target audience group. Come up with creative names for each. \n" +
     "Be funny but constructive; avoid profanity; keep content safe for all audiences.\n" +
     "Scoring rubric: coherence with contract (40), visual clarity/composition (30), dialogue fit (10), overall charm (20).\n" +
-    "Important: Return ONLY valid JSON matching the required schema. No extra commentary.\n"
+    "Important: Return ONLY valid JSON matching the required schema. No extra commentary.\n" +
+          `All strings should be in ${process.env.NEXT_PUBLIC_OPENAI_OUTPUT_LANGUAGE || 'English'} language and well-formed.`
+
   );
 }
 
