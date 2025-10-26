@@ -233,9 +233,9 @@ export default function MangaCanvas({
     let dataUrl: string | null = null;
     try {
       dataUrl = stageRef.current.toDataURL({
-        mimeType: "image/png",
+        mimeType: "image/jpeg",
         quality: 1,
-        pixelRatio: 2,
+        pixelRatio: 1,
       });
     } catch {
       setGradeError(
