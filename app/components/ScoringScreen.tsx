@@ -57,6 +57,15 @@ export default function ScoringScreen({
     return Math.round(sum / grades.grades.length);
   }, [grades]);
 
+  const handleDownload = () => {
+    const link = document.createElement("a");
+    link.href = imageDataUrl;
+    link.download = `manga-page-${Date.now()}.png`;
+    document.body.appendChild(link);
+    link.click();
+    document.body.removeChild(link);
+  };
+
   return (
     <div className="flex flex-col items-center gap-6 p-6 w-full h-screen animate-fade-in">
       <div className="flex items-center justify-between w-full max-w-7xl px-6 py-4 border-2 bg-amber-200 border-black/10 rounded-2xl">
@@ -68,8 +77,8 @@ export default function ScoringScreen({
             </span>
           )}
         </h2>
-        <Button onClick={onRestart} variant="secondary" size="medium">
-          Start Over
+        <Button onClick={handleDownload} variant="primary" size="medium">
+          Download Image
         </Button>
       </div>
 

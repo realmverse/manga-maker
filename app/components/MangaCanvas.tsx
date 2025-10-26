@@ -307,7 +307,19 @@ export default function MangaCanvas({
             onClick={handleStageClick}
             onTap={handleStageClick}
           >
-            {/* Panel Layer (bottom-most - rendered first) */}
+            {/* White Background Layer (absolute bottom) */}
+            <Layer>
+              <Rect
+                x={0}
+                y={0}
+                width={MANGA_WIDTH}
+                height={MANGA_HEIGHT}
+                fill="white"
+                listening={false}
+              />
+            </Layer>
+
+            {/* Panel Layer */}
             <Layer>
               {panels.map((item) => (
                 <Panel
