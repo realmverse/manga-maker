@@ -137,8 +137,8 @@ export default function ToolDisplay({
   deleteSelected,
 }: ToolDisplayProps) {
   return (
-    <div className="w-64 flex flex-col gap-4 bg-black/30 backdrop-blur-md rounded-lg p-4 border border-white/20 shadow-2xl overflow-y-auto">
-      <h3 className="text-white font-bold text-lg">Tools</h3>
+    <div className="w-64 flex flex-col gap-4 bg-zinc-100 rounded-lg p-4 border-2 border-zinc-950 shadow-2xl overflow-y-auto">
+      <h3 className="text-black font-titan-one text-lg">Tools</h3>
 
       {/* Text Tool */}
       <div className="flex flex-col gap-2">
@@ -154,7 +154,7 @@ export default function ToolDisplay({
 
       {/* Panels */}
       <div className="border-t border-white/20 pt-3">
-        <h4 className="text-white/80 font-semibold text-sm mb-2">
+        <h4 className="text-black font-semibold text-sm mb-2">
           AI Image Panels
         </h4>
         <div className="grid grid-cols-3 gap-2">
@@ -181,7 +181,7 @@ export default function ToolDisplay({
 
       {/* Speech Bubbles */}
       <div className="border-t border-white/20 pt-3">
-        <h4 className="text-white/80 font-semibold text-sm mb-2">
+        <h4 className="text-black font-semibold text-sm mb-2">
           Speech Bubbles
         </h4>
         <div className="grid grid-cols-2 gap-2">
@@ -207,8 +207,8 @@ export default function ToolDisplay({
         (() => {
           const panel = panels.find((p) => p.id === selectedId);
           return panel ? (
-            <div className="border-t border-white/20 pt-3">
-              <h4 className="text-white/80 font-semibold text-sm mb-2">
+            <div className="border-t border-black/20 pt-3">
+              <h4 className="text-black font-semibold text-sm mb-2">
                 Generate AI Image
               </h4>
               <input
@@ -218,7 +218,7 @@ export default function ToolDisplay({
                   updatePanel(selectedId, { prompt: e.target.value })
                 }
                 placeholder="Describe the image..."
-                className="w-full px-3 py-2 bg-white/10 text-white rounded border border-white/20 text-sm placeholder-white/40 focus:outline-none focus:border-green-500 mb-2"
+                className="w-full px-3 py-2 bg-white/10 text-black rounded border border-white/20 text-sm placeholder-white/40 focus:outline-none focus:border-green-500 mb-2"
                 onKeyDown={(e) => {
                   if (e.key === "Enter" && !panel.isGenerating) {
                     generatePanelImage(selectedId);
@@ -256,8 +256,8 @@ export default function ToolDisplay({
         </Button>
       )}
 
-      <div className="flex-1 border-t border-white/20 pt-4 mt-2">
-        <p className="text-white/60 text-sm whitespace-pre-line">
+      <div className="flex-1 border-t border-black/20 pt-4 mt-2">
+        <p className="text-black/60 text-sm whitespace-pre-line">
           {selectedId
             ? selectedId.startsWith("text-")
               ? "✓ Text selected\n\nDrag to move\nUse handles to resize/rotate\nDouble-click to edit"
@@ -270,7 +270,7 @@ export default function ToolDisplay({
 
       {/* Submit / Grading */}
       <div className="border-t border-white/20 pt-3">
-        <h4 className="text-white/80 font-semibold text-sm mb-2">Submit</h4>
+        <h4 className="text-black/80 font-semibold text-sm mb-2">Submit</h4>
         <Button
           onClick={submitForGrading}
           variant={grading ? "disabled" : "primary"}
