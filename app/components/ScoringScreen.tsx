@@ -37,7 +37,7 @@ export default function ScoringScreen({
         setError(null);
         setGrades(res);
       })
-      .catch((e: { message: string} ) => {
+      .catch((e: { message: string }) => {
         if (!mounted) return;
         setGrades(null);
         setError(e?.message || "Grading failed");
@@ -60,10 +60,12 @@ export default function ScoringScreen({
   return (
     <div className="flex flex-col items-center gap-6 p-6 w-full h-screen animate-fade-in">
       <div className="flex items-center justify-between w-full max-w-7xl px-6 py-4 border-2 bg-amber-200 border-black/10 rounded-2xl">
-        <h2 className="text-3xl font-bold text-white text-outline flex items-baseline gap-4">
-          <span>Scoring</span>
+        <h2 className="text-3xl font-titan-one text-white flex items-baseline gap-4">
+          <span className="text-outline">Scoring</span>
           {avg !== null && (
-            <span className="text-lg font-semibold text-white/80">Avg {avg}/100 — Grade {toLetter(avg)}</span>
+            <span className="text-xl font-comic-neue text-black/50 font-bold">
+              Avg {avg}/100 — Grade {toLetter(avg)}
+            </span>
           )}
         </h2>
         <Button onClick={onRestart} variant="secondary" size="medium">
@@ -74,7 +76,10 @@ export default function ScoringScreen({
       <div className="flex-1 w-full max-w-7xl">
         {loading ? (
           <div className="w-full h-full flex items-start justify-center">
-            <LoadingComponent title="Gathering critic reviews" subtitle="Review committee" />
+            <LoadingComponent
+              title="Gathering critic reviews"
+              subtitle="Review committee"
+            />
           </div>
         ) : (
           <div className="w-full h-full grid grid-cols-1 lg:grid-cols-[auto_1fr_auto] gap-6">
@@ -85,30 +90,48 @@ export default function ScoringScreen({
             <div className="flex flex-col items-center gap-4">
               <div className="bg-white rounded-lg shadow-2xl overflow-hidden border">
                 {/* eslint-disable-next-line @next/next/no-img-element */}
-                <img src={imageDataUrl} alt="Submitted manga page" className="max-h-[70vh] object-contain" />
+                <img
+                  src={imageDataUrl}
+                  alt="Submitted manga page"
+                  className="max-h-[70vh] object-contain"
+                />
               </div>
               {error && <div className="text-red-400 text-sm">{error}</div>}
               {avg !== null && (
-                <div className="text-white text-xl font-bold">
-                  Total Score: <span className="text-green-300">{avg}</span>/100 — Grade {toLetter(avg)}
+                <div className="text-white text-2xl font-titan-one text-outline">
+                  Total Score: <span className="text-green-300">{avg}</span>/100
+                  — Grade {toLetter(avg)}
                 </div>
               )}
             </div>
 
             {/* Reviews */}
-            <div className="w-80 flex flex-col gap-3 bg-black/30 backdrop-blur-md rounded-lg p-4 border border-white/20 shadow-2xl">
-              <h3 className="text-white font-bold">Critic Reviews</h3>
-              {grades?.grades?.map((g, i) => (
-                <div key={i} className="p-2 rounded bg-white/5 border border-white/10">
-                  <div className="text-white text-sm font-semibold">
-                    {g.judge} — {g.score}/100
+            <div className="w-80 flex flex-col bg-[#FCF6D7] rounded-3xl border-2 border-[#664950] shadow-2xl overflow-y-auto overflow-x-hidden font-comic-neue">
+              <div className="bg-linear-to-b from-[#9B7EBD] to-[#B89FD4] rounded-t-[20px] px-4 py-3 border-b-2 border-[#664950]">
+                <h3 className="font-titan-one text-lg text-white text-center drop-shadow-md">
+                  Critic Reviews
+                </h3>
+              </div>
+              <div className="flex flex-col gap-3 p-4">
+                {grades?.grades?.map((g, i) => (
+                  <div
+                    key={i}
+                    className="p-2 rounded bg-white border border-[#664950]/20"
+                  >
+                    <div className="text-black text-sm font-semibold">
+                      {g.judge} — {g.score}/100
+                    </div>
+                    <div className="text-black/80 text-xs mt-1 whitespace-pre-wrap">
+                      {g.review}
+                    </div>
                   </div>
-                  <div className="text-white/80 text-xs mt-1 whitespace-pre-wrap">{g.review}</div>
+                ))}
+                <div className="border-t border-[#664950]/20 pt-3 mt-1">
+                  <Button onClick={onRestart} variant="primary" size="medium">
+                    Back to Main Screen
+                  </Button>
                 </div>
-              ))}
-              <Button onClick={onRestart} variant="primary" size="medium">
-                Back to Main Screen
-              </Button>
+              </div>
             </div>
           </div>
         )}
