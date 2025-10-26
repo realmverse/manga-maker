@@ -36,8 +36,8 @@ export default function GameScreen({ onRestart }: { onRestart: () => void }) {
 
   return (
     <div className="flex flex-col items-center gap-6 p-6 w-full h-screen animate-fade-in">
-      <div className="flex items-center justify-between w-full max-w-7xl px-6 py-4 border">
-        <h2 className="text-3xl font-bold text-white text-outline">
+      <div className="flex items-center justify-between w-full max-w-7xl px-6 py-4">
+        <h2 className="text-3xl font-titan-one text-white text-outline">
           Manga Maker
         </h2>
 

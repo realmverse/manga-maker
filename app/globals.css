@@ -12,6 +12,7 @@
   --font-mono: var(--font-geist-mono);
   --font-open-sans: var(--font-open-sans);
   --font-titan-one: var(--font-titan-one);
+  --font-comic-neue: var(--font-comic-neue);
 
   /* Remap black and white to zinc variants */
   --color-black: #09090b; /* zinc-950 */
