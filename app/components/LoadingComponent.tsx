@@ -58,6 +58,7 @@ const EXCUSES: string[] = [
 
 export default function LoadingComponent({ title = "Loading contracts", subtitle = "Studio pipeline" }: { title?: string; subtitle?: string }) {
   const [index, setIndex] = useState(0);
+  const [progress, setProgress] = useState(0);
   const excuses = useMemo(() => EXCUSES, []);
 
   useEffect(() => {
@@ -68,15 +69,40 @@ export default function LoadingComponent({ title = "Loading contracts", subtitle
     return () => clearInterval(id);
   }, [excuses.length]);
 
+  // Determinate progress: +4%/s up to 60%, then +1%/s to 100%
+  useEffect(() => {
+    const id = setInterval(() => {
+      setProgress((prev) => {
+        const inc = prev < 60 ? 4 : 1;
+        const next = Math.min(100, prev + inc);
+        if (next >= 100) {
+          clearInterval(id);
+        }
+        return next;
+      });
+    }, 1000);
+    return () => clearInterval(id);
+  }, []);
+
   return (
     <div className="w-full max-w-xl bg-black/30 backdrop-blur-md border border-white/20 rounded-lg p-4 text-white shadow-2xl" aria-busy="true" aria-live="polite">
       <div className="flex items-center justify-between mb-2">
         <div className="font-semibold">{title}</div>
         <div className="text-xs text-white/60">{subtitle}</div>
       </div>
-      {/* Progress bar (indeterminate) */}
-      <div className="w-full h-2 bg-white/10 rounded overflow-hidden">
-        <div className="h-full w-1/3 bg-linear-to-r from-purple-500 via-indigo-500 to-green-500 animate-pulse rounded" />
+      {/* Progress bar (determinate) */}
+      <div
+        className="w-full h-2 bg-white/10 rounded overflow-hidden"
+        role="progressbar"
+        aria-valuemin={0}
+        aria-valuemax={100}
+        aria-valuenow={progress}
+        aria-label="Loading progress"
+      >
+        <div
+          className="h-full bg-linear-to-r from-purple-500 via-indigo-500 to-green-500 rounded transition-[width] duration-1000 ease-linear"
+          style={{ width: `${progress}%` }}
+        />
       </div>
       <div className="mt-3 text-sm text-white/80 min-h-6">
         {excuses[index]}

@@ -21,7 +21,7 @@ export function jsonShapeForTMangaContract(): string {
     return (
         "Return ONLY valid JSON that matches an this TypeScript type wtih exactly 3 elements (no extra commentary):\n" +
         "type TMangaContracts = {" +
-        "contracts: {\n" +
+        "contracts: [{\n" +
         "  genre: string;\n" +
         "  tone: \"wholesome\" | \"dramatic\" | \"comedy\";\n" +
         "  audience: string;\n" +
@@ -30,7 +30,7 @@ export function jsonShapeForTMangaContract(): string {
         "  selfReview: \"well-formed\" | \"boring\" | \"complicated\";\n" +
         "  source: \"boss\" | \"client\" | \"auto\";\n" +
         "  introDialogue: string;\n" +
-        "}};\n" +
+        "}]};\n" +
         "Rules: Emit JSON only. Do not wrap in markdown fences. Ensure panelCount is 3, 4, or 5."
     );
 }
@@ -58,63 +58,57 @@ export function randomizeContractSystemPrompt(): string {
     );
 }
 
+// Simple in-memory session cache to avoid duplicate LLM calls per difficulty/model during a SPA session
+const _contractsPromiseCache = new Map<string, Promise<TMangaContract[]>>();
+const _contractsValueCache = new Map<string, TMangaContract[]>();
+
 export async function generateMangaContracts(
     difficulty: TDifficulty,
     model = "gpt-5-mini"
 ): Promise<TMangaContract[]> {
-    const llm = new LlmClient();
-    const { json, text, parseError } = await llm.call<TMangaContracts>({
-        model,
-        system: randomizeContractSystemPrompt(),
-        output: jsonShapeForTMangaContract(),
-        input: `Difficulty: ${difficulty}`,
-    });
-    if (!json) {
-        throw new Error(
-            `Failed to parse TMangaContracts JSON from model. Error: ${parseError || "unknown"}. Raw text: ${text}`
-        );
+    const key = `${model}|${difficulty}`;
+
+    // Return resolved value if present
+    if (_contractsValueCache.has(key)) {
+        return _contractsValueCache.get(key)!;
     }
-    return json.contracts || [];
-}
+    // Return in-flight promise if already fetching
+    if (_contractsPromiseCache.has(key)) {
+        return _contractsPromiseCache.get(key)!;
+    }
 
-export async function generateMangaContract(
-    difficulty: TDifficulty,
-    model = "gpt-5-mini"
-): Promise<TMangaContract> {
-    // We try up to 3 times if the self-review indicates the contract isn't well-formed.
-    // Minimal-scope retry: only when selfReview !== "well-formed"; parse failures still throw.
-    const maxAttempts = 3;
-    let last: TMangaContract | null = null;
-
-    for (let attempt = 1; attempt <= maxAttempts; attempt++) {
-        const baseInput = `Difficulty: ${difficulty}`;
-
+    const fetchPromise = (async () => {
         const llm = new LlmClient();
         const { json, text, parseError } = await llm.call<TMangaContracts>({
             model,
             system: randomizeContractSystemPrompt(),
             output: jsonShapeForTMangaContract(),
-            input: baseInput,
+            input: `Difficulty: ${difficulty}`,
         });
-
-
         if (!json) {
-            // Keep prior behavior: fail fast on parse errors
             throw new Error(
                 `Failed to parse TMangaContracts JSON from model. Error: ${parseError || "unknown"}. Raw text: ${text}`
             );
         }
+        const contracts = json.contracts || [];
+        _contractsValueCache.set(key, contracts);
+        return contracts;
+    })();
 
-        for (const contract of json.contracts) {
-            last = contract
+    _contractsPromiseCache.set(key, fetchPromise);
 
-            if (contract.selfReview === "well-formed" || attempt === maxAttempts) {
-                return contract
-            }
-        }
+    try {
+        const result = await fetchPromise;
+        return result;
+    } finally {
+        // Clean up in-flight promise; value remains cached
+        _contractsPromiseCache.delete(key);
     }
-    if (!last) {
-        throw new Error("No TMangaContract generated from model.");
-    }
-    return last
+}
+
+export async function generateMangaContract(
+    difficulty: TDifficulty,
+    model = "gpt-5-nano"
+): Promise<TMangaContract> {
+    return (await generateMangaContracts(difficulty, model))[0];
 }

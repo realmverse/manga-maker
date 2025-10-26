@@ -10,10 +10,10 @@ import LoadingComponent from "./LoadingComponent";
 import ScoringScreen from "./ScoringScreen";
 import BossWidget from "./BossWidget";
 
-export default function GameScreen({ onRestart }: { onRestart: () => void }) {
-  const [contracts, setContracts] = useState<TMangaContract[] | null>(null);
+export default function GameScreen({ onRestart, preloadedContracts }: { onRestart: () => void; preloadedContracts?: TMangaContract[] }) {
+  const [contracts, setContracts] = useState<TMangaContract[] | null>(preloadedContracts ? preloadedContracts.slice(0, 3) : null);
   const [error, setError] = useState<string | null>(null);
-  const [loading, setLoading] = useState<boolean>(true);
+  const [loading, setLoading] = useState<boolean>(!preloadedContracts);
   const [selected, setSelected] = useState<TMangaContract | null>(null);
   const [scoring, setScoring] = useState<{
     contract: TMangaContract;
@@ -22,24 +22,38 @@ export default function GameScreen({ onRestart }: { onRestart: () => void }) {
 
   useEffect(() => {
     let mounted = true;
-    generateMangaContracts("easy")
-      .then((list) => {
-        if (!mounted) return;
-        // Fallback to empty array if undefined
-        setContracts((list && list.length ? list : []).slice(0, 3));
-      })
-      .catch((e) => {
-        if (!mounted) return;
-        setError(e?.message || "Failed to load contracts");
-      })
-      .finally(() => {
-        if (!mounted) return;
-        setLoading(false);
-      });
+    if (!contracts) {
+      generateMangaContracts("easy")
+        .then((list) => {
+          if (!mounted) return;
+          console.log("Loaded contracts", list?.[0]?.introDialogue);
+          // Fallback to empty array if undefined
+          setContracts((list && list.length ? list : []).slice(0, 3));
+        })
+        .catch((e) => {
+          if (!mounted) return;
+          setError(e?.message || "Failed to load contracts");
+        })
+        .finally(() => {
+          if (!mounted) return;
+          setLoading(false);
+        });
+    } else {
+      // Already have preloaded contracts
+      setLoading(false);
+    }
     return () => {
       mounted = false;
     };
-  }, []);
+  }, [contracts]);
+
+  // If preloadedContracts prop updates later (arrives after mount), adopt it
+  useEffect(() => {
+    if (preloadedContracts && (!contracts || contracts.length === 0)) {
+      setContracts(preloadedContracts.slice(0, 3));
+      setLoading(false);
+    }
+  }, [preloadedContracts]);
 
   return (
     <div className="flex flex-col items-center gap-6 p-6 w-full h-screen animate-fade-in">
@@ -81,8 +95,8 @@ export default function GameScreen({ onRestart }: { onRestart: () => void }) {
             </h3>
             {loading && (
               <LoadingComponent
-                title="Loading contracts"
-                subtitle="Studio pipeline"
+                title="Finding contracts"
+                subtitle="Dispatcher"
               />
             )}
             {error && <div className="text-red-400 text-sm">{error}</div>}
