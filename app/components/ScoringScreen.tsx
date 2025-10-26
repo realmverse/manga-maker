@@ -59,7 +59,7 @@ export default function ScoringScreen({
 
   return (
     <div className="flex flex-col items-center gap-6 p-6 w-full h-screen animate-fade-in">
-      <div className="flex items-center justify-between w-full max-w-7xl px-6 py-4 border">
+      <div className="flex items-center justify-between w-full max-w-7xl px-6 py-4 border-2 bg-amber-200 border-black/10 rounded-2xl">
         <h2 className="text-3xl font-bold text-white text-outline flex items-baseline gap-4">
           <span>Scoring</span>
           {avg !== null && (
