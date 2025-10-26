@@ -26,7 +26,7 @@ interface TextItem {
   fontFamily: string;
   fill: string;
   rotation: number;
-  width?: number;
+  width: number;
 }
 
 interface SpeechBubbleItem {
@@ -85,6 +85,7 @@ export default function MangaCanvas({
       fontFamily: "Comic Neue",
       fill: "#000000",
       rotation: 0,
+      width: 200,
     };
     setTextItems([...textItems, newText]);
     setSelectedId(newText.id);
@@ -407,7 +408,7 @@ function EditableText({
       const scaleX = node.scaleX();
       const scaleY = node.scaleY();
 
-      // Reset scale and update fontSize instead
+      // Reset scale and update width directly
       node.scaleX(1);
       node.scaleY(1);
 
@@ -416,7 +417,7 @@ function EditableText({
         y: node.y(),
         rotation: node.rotation(),
         fontSize: Math.max(10, item.fontSize * scaleY),
-        width: node.width() * scaleX,
+        width: Math.max(20, item.width * scaleX),
       });
     }
   };
@@ -443,6 +444,7 @@ function EditableText({
     textarea.style.position = "absolute";
     textarea.style.top = areaPosition.y + "px";
     textarea.style.left = areaPosition.x + "px";
+    textarea.style.width = item.width + "px";
     textarea.style.fontSize = item.fontSize + "px";
     textarea.style.fontFamily = item.fontFamily;
     textarea.style.border = "2px solid #8B5CF6";
@@ -456,6 +458,8 @@ function EditableText({
     textarea.style.textAlign = "left";
     textarea.style.color = item.fill;
     textarea.style.zIndex = "1000";
+    textarea.style.wordWrap = "break-word";
+    textarea.style.whiteSpace = "pre-wrap";
 
     textarea.focus();
     textarea.select();
@@ -492,6 +496,7 @@ function EditableText({
       <Text
         ref={textRef}
         {...item}
+        wrap="word"
         draggable
         onClick={onSelect}
         onTap={onSelect}
@@ -509,6 +514,8 @@ function EditableText({
             "top-right",
             "bottom-left",
             "bottom-right",
+            "middle-left",
+            "middle-right",
           ]}
           boundBoxFunc={(oldBox, newBox) => {
             // Limit minimum size
