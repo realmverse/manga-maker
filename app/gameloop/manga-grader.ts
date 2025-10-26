@@ -10,9 +10,11 @@ function gradingSystemPrompt(): string {
     "Each judge has a playful archetype voice and gives an in-character one-paragraph review with a numeric score 0-100.\n" +
     "Consider genre, tone, audience, panelCount, and constraints from the original contract.\n" +
     "One judge should be easy to amuse (fan-type), one should be hard to please (connoisseur-type) but still doable to achieve 100 " +
-      "and one should be a judge from outside of target audience group. Come up with creative names for each. \n" +
-    "Be funny but constructive; avoid profanity; keep content safe for all audiences.\n" +
-    "Scoring rubric: coherence with contract (40), visual clarity/composition (30), dialogue fit (10), overall charm (20).\n" +
+      "and one should be a judge from outside of target audience group. \n" +
+      "Come up with creative names for each reviewer without calling them based on archetype directly - names should be genre-related. \n" +
+      "Don't mention details of the intro, unless there's something missing from it. \n" +
+      "Be funny but constructive; avoid profanity; keep content safe for all audiences.\n" +
+      "Scoring rubric: coherence with contract (30), dialogue fit (40), overall charm (20), visual clarity/composition (10). You can't score more than 50% without dialogues\n" +
     "Important: Return ONLY valid JSON matching the required schema. No extra commentary.\n" +
           `All strings should be in ${process.env.NEXT_PUBLIC_OPENAI_OUTPUT_LANGUAGE || 'English'} language and well-formed.`
 
@@ -40,6 +42,7 @@ export async function gradeMangaPage(
     audience: contract.audience,
     panelCount: contract.panelCount,
     constraints: contract.constraints,
+    intro: contract.introDialogue
   }
   const input = [
     "ORIGINAL CONTRACT:",
