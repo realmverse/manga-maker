@@ -100,23 +100,6 @@ Kodo AI is currently in **beta** and opening soon. To request access:
 
 We'll be posting API updates and access information on these channels!
 
-## 📝 Project Structure
-
-```
-manga-maker/
-├── app/
-│   ├── api/           # API routes (Kodo, LLM)
-│   ├── components/    # React components
-│   ├── gameloop/      # Game logic (contracts, grading)
-│   ├── genai/         # AI integration
-│   └── llm/           # OpenAI integration
-├── public/
-│   ├── audio/         # Sound effects and music
-│   ├── images/        # Game assets
-│   ├── speech-bubbles/# Speech bubble SVGs
-│   └── vfx/           # Visual effects
-└── lib/               # Utility functions
-```
 
 ## 🎮 How to Play
 
