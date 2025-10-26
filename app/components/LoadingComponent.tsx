@@ -4,7 +4,7 @@ import { useEffect, useMemo, useState } from "react";
 
 // 50 manga-themed loading excuses rotating every 3 seconds
 const EXCUSES: string[] = [
-  "Drying ink on page 1…",
+  "Drying ink…",
   "Assistant sharpening G-pens…",
   "Screen tones misbehaving… wrangling dots…",
   "Editor yelling about deadlines (as encouragement)…",
@@ -19,7 +19,7 @@ const EXCUSES: string[] = [
   "Cat sidekick refusing to leave the panel…",
   "Sound effects calibrating decibels of whoosh…",
   "Screentone supply stuck in customs…",
-  "Ink spilled—transforming into plot twist…",
+  "Ink spilled - transforming into plot twist…",
   "Mysterious mentor stuck in a flashback…",
   "Training montage at 92% complete…",
   "Rivals agreeing on a cooler pose…",
@@ -40,7 +40,7 @@ const EXCUSES: string[] = [
   "Fridge note says: ‘add more sparkles’…",
   "Mascot obtaining union-mandated nap…",
   "Perspective grid finding vanishing point…",
-  "Ink screech—eraser squeak—harmony restored…",
+  "Ink screech - eraser squeak - harmony restored…",
   "Foreshadowing placed gently in panel 2…",
   "Cameo character stuck in traffic…",
   "Dialogue bubbles passing vibe check…",
