@@ -12,18 +12,11 @@ export default function Home() {
 
   return (
     <div className="flex min-h-screen items-center justify-center relative">
-      {/* Base background gradient */}
-      <div
-        className="absolute inset-0"
-        style={{
-          background: "linear-gradient(to bottom, #FAEFED, #FBF7EB)",
-        }}
-      />
       {/* Pattern grid with its own gradient overlay */}
       <div
         className="absolute inset-0"
         style={{
-          background: "linear-gradient(to top, #FACAD8, #FDEAC5)",
+          background: "linear-gradient(to bottom, #FACAD8, #B2CDD4)",
           maskImage: "url(/images/pattern-grid.svg)",
           maskSize: "auto",
           maskRepeat: "repeat",
