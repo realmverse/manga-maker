@@ -11,7 +11,7 @@
  *   const { url } = await kodo.generate({ description: "hero leaps" });
  *
  *   const llm = new LlmClient();
- *   const res = await llm.call({ model: "gpt-4o-mini", system: "You are...", input: "..." });
+ *   const contracts = await llm.generateContracts({ difficulty: "easy" });
  */
 
 export type ApiResult<T> = { ok: true; result: T } | { ok: false; error: string };
@@ -79,36 +79,53 @@ export type CallLLMResponse<TJson = unknown> = {
   };
 };
 
+export type TDifficulty = "easy" | "medium" | "hard";
+
 export class LlmClient {
   constructor(private basePath = "/api/llm") {}
 
   /**
-   * Calls the OpenAI Responses API via our server route.
+   * Purpose-specific: generate 3 contracts server-side (prompts embedded, model locked).
    */
-  async call<TJson = unknown>(req: CallLLMRequest): Promise<CallLLMResponse<TJson>> {
-    console.log("LLM call request", JSON.stringify(req));
+  async generateContracts<TJson = unknown>(params: { difficulty: TDifficulty }): Promise<TJson> {
+    const res = await fetch(`${this.basePath}/call`, {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ purpose: "generate_contracts", difficulty: params.difficulty }),
+    });
+    const data = (await res.json()) as ApiResult<CallLLMResponse<TJson>>;
+    if (!res.ok) throw new Error(res.statusText || "LLM generateContracts failed");
+    if (!data || !data.ok) throw new Error((data as any)?.error || "LLM generateContracts failed");
+    return data.result.json as TJson;
+  }
+
+  /**
+   * Purpose-specific: grade a produced manga page (prompts embedded, model locked).
+   */
+  async gradePage<TJson = unknown>(params: { contract: unknown; imageBase64: string }): Promise<TJson> {
+    const res = await fetch(`${this.basePath}/call`, {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ purpose: "grade_page", contract: params.contract, imageBase64: params.imageBase64 }),
+    });
+    const data = (await res.json()) as ApiResult<CallLLMResponse<TJson>>;
+    if (!res.ok) throw new Error(res.statusText || "LLM gradePage failed");
+    if (!data || !data.ok) throw new Error((data as any)?.error || "LLM gradePage failed");
+    return data.result.json as TJson;
+  }
+
+  /**
+   * Legacy generic call. Server now restricts usage; retained for compatibility within repo if needed.
+   */
+  async call<TJson = unknown>(req: Record<string, unknown>): Promise<CallLLMResponse<TJson>> {
     const res = await fetch(`${this.basePath}/call`, {
       method: "POST",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify(req),
     });
     const data = (await res.json()) as ApiResult<CallLLMResponse<TJson>>;
-    console.log("LLM call result", JSON.stringify(data));
-    if (!res.ok) {
-      throw new Error(res.statusText || "LLM call failed");
-    }
-    if (!data) {
-      throw new Error("Unknown error");
-    }
-    if (!data.ok) {
-      throw new Error(data.error || "LLM call failed");
-    }
-    const result = data.result;
-    console.log("LLM call result", JSON.stringify(result));
-    console.log("LLM call result text", result.text);
-    if (result?.text?.length) {
-      result.json = JSON.parse(data.result.text)
-    }
-    return result;
+    if (!res.ok) throw new Error(res.statusText || "LLM call failed");
+    if (!data || !data.ok) throw new Error((data as any)?.error || "LLM call failed");
+    return data.result;
   }
 }
