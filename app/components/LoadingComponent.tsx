@@ -62,7 +62,8 @@ export default function LoadingComponent({ title = "Loading contracts", subtitle
 
   useEffect(() => {
     const id = setInterval(() => {
-      setIndex((i) => (i + 1) % excuses.length);
+      // use random index to avoid repetition patterns
+        setIndex(Math.floor(Math.random() * excuses.length));
     }, 3000);
     return () => clearInterval(id);
   }, [excuses.length]);
