@@ -135,8 +135,6 @@ export default function ToolDisplay({
   updatePanel,
   generatePanelImage,
   deleteSelected,
-  mangaWidth,
-  mangaHeight,
 }: ToolDisplayProps) {
   return (
     <div className="w-64 flex flex-col gap-4 bg-black/30 backdrop-blur-md rounded-lg p-4 border border-white/20 shadow-2xl overflow-y-auto">

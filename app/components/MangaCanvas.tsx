@@ -578,6 +578,7 @@ function SpeechBubble({
         onTap={onSelect}
         onDragEnd={handleDragEnd}
         onTransformEnd={handleTransformEnd}
+        alt="Speech Bubble"
       />
       {isSelected && (
         <Transformer
@@ -688,6 +689,7 @@ function Panel({ item, isSelected, onSelect, onChange }: PanelProps) {
             image={generatedImage}
             width={item.width}
             height={item.height}
+            alt="Generated Image"
           />
         ) : (
           <Text

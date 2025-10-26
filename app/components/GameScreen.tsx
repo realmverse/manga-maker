@@ -51,7 +51,7 @@ export default function GameScreen({ onRestart }: { onRestart: () => void }) {
           <MangaCanvas contract={selected} />
         ) : (
           <div className="w-full h-full flex flex-col items-center justify-start gap-4">
-            <h3 className="text-white text-xl font-semibold">Pick Your Contract</h3>
+            <h3 className="text-white text-xl font-titan-one text-outline">Pick Your Contract</h3>
             {loading && (
               <LoadingComponent title="Loading contracts" subtitle="Studio pipeline" />
             )}
