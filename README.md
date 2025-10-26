@@ -1,4 +1,5 @@
 <img width="2900" height="2160" alt="extradosed-unclimaxed-carmel ngrok-free dev_" src="https://github.com/user-attachments/assets/df859a66-df95-4331-866b-4ed23036b965" />
+<img width="1234" height="1061" alt="mm-2" src="https://github.com/user-attachments/assets/5903b78b-a2aa-4783-b4ce-ec3044ca2315" />
 
 # AI Manga Maker
 🎨
