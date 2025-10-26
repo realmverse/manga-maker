@@ -31,11 +31,13 @@ export default function TutorialScreen({
 
           {/* Chalkboard surface */}
           <div
-            className="relative bg-linear-to-br from-slate-800 via-slate-900 to-black p-12 rounded shadow-inner"
+            className="relative p-12 rounded shadow-inner"
             style={{
               boxShadow: "inset 0 4px 12px rgba(0,0,0,0.8)",
-              backgroundImage:
-                "radial-gradient(circle at 20% 30%, rgba(255,255,255,0.03), transparent 50%)",
+              backgroundImage: "url('/images/chalk-texture.png')",
+              backgroundSize: "cover",
+              backgroundPosition: "center",
+              backgroundRepeat: "no-repeat",
             }}
           >
             {/* Chalk dust texture */}
@@ -54,13 +56,7 @@ export default function TutorialScreen({
 
             {/* Title - Chalk style */}
             <div className="text-center mb-8">
-              <h1
-                className="text-6xl font-titan-one text-white mb-2"
-                style={{
-                  textShadow: "2px 2px 4px rgba(0,0,0,0.5)",
-                  letterSpacing: "0.05em",
-                }}
-              >
+              <h1 className="text-6xl font-titan-one text-white mb-2">
                 HOW TO CREATE MANGA
               </h1>
               {/* Chalk underline */}
@@ -75,65 +71,13 @@ export default function TutorialScreen({
             </div>
 
             {/* Center diagram/image area */}
-            <div className="relative my-12 min-h-[300px] flex items-center justify-center">
-              {/* Transparent container for tutorial diagram */}
-              <div className="bg-white/5 backdrop-blur-sm border-2 border-white/20 rounded-lg p-8 w-full">
-                <div className="grid grid-cols-3 gap-6 items-center justify-items-center">
-                  {/* Step 1 */}
-                  <div className="flex flex-col items-center gap-3">
-                    <div className="w-24 h-24 bg-white/10 border-4 border-white/40 rounded-lg flex items-center justify-center">
-                      <span className="text-6xl">🎨</span>
-                    </div>
-                    <div className="text-white/90 text-sm font-bold text-center">
-                      CHOOSE
-                      <br />
-                      CHARACTERS
-                    </div>
-                  </div>
-
-                  {/* Arrow */}
-                  <div className="text-white/60 text-4xl">→</div>
-
-                  {/* Step 2 */}
-                  <div className="flex flex-col items-center gap-3">
-                    <div className="w-24 h-24 bg-white/10 border-4 border-white/40 rounded-lg flex items-center justify-center">
-                      <span className="text-6xl">💬</span>
-                    </div>
-                    <div className="text-white/90 text-sm font-bold text-center">
-                      ADD
-                      <br />
-                      DIALOGUE
-                    </div>
-                  </div>
-
-                  {/* Continue to next row */}
-                  <div className="col-span-3 text-white/60 text-4xl">↓</div>
-
-                  {/* Step 3 */}
-                  <div className="col-span-3 flex flex-col items-center gap-3">
-                    <div className="w-24 h-24 bg-white/10 border-4 border-white/40 rounded-lg flex items-center justify-center">
-                      <span className="text-6xl">🌟</span>
-                    </div>
-                    <div className="text-white/90 text-sm font-bold text-center">
-                      SHARE YOUR CREATION!
-                    </div>
-                  </div>
-                </div>
-              </div>
-            </div>
+            <div className="relative my-12 min-h-[300px] flex items-center justify-center"></div>
 
             {/* Bottom description text - Chalk style */}
             <div className="text-center mt-8">
-              <p
-                className="text-2xl text-white/90 font-bold leading-relaxed"
-                style={{
-                  textShadow: "1px 1px 2px rgba(0,0,0,0.5)",
-                  letterSpacing: "0.02em",
-                }}
-              >
-                CREATE AMAZING PANELS, ARRANGE YOUR STORY,
-                <br />
-                AND BRING YOUR MANGA TO LIFE!
+              <p className="text-2xl text-white font-titan-one">
+                CREATE AMAZING PANELS, ARRANGE YOUR STORY, AND BRING YOUR MANGA
+                TO LIFE!
               </p>
             </div>
           </div>
