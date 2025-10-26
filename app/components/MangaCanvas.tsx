@@ -272,7 +272,7 @@ export default function MangaCanvas({
 
     // Fallback: do grading here (legacy flow)
     try {
-      const res = await gradeMangaPage(derivedContract, dataUrl, "gpt-5-mini");
+      const res = await gradeMangaPage(derivedContract, dataUrl);
       setGrades(res);
     } catch (err: unknown) {
       const msg = err instanceof Error ? err.message : "Grading failed";
